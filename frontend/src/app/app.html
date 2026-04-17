@@ -1,0 +1,10 @@
+<h1>NBA Analytics</h1>
+@if (loading) {
+  <p>Loading...</p>
+} @else {
+  <ul>
+    @for (team of teams; track team.id) {
+      <li>{{ team.city }} {{ team.name }} ({{ team.abbreviation }})</li>
+    }
+  </ul>
+}
