@@ -79,6 +79,11 @@ class PlayerStat(models.Model):
 
     class Meta:
         unique_together = ('game', 'player')
+        indexes = [
+            models.Index(fields=['player']),
+            models.Index(fields=['team']),
+            models.Index(fields=['game']),
+        ]
 
     def __str__(self):
         return f"{self.player} - {self.game}"

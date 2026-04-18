@@ -11,7 +11,6 @@ class PlayerStatSerializer(serializers.ModelSerializer):
     player_name = serializers.SerializerMethodField()
     team_abbreviation = serializers.SerializerMethodField()
     game_date = serializers.SerializerMethodField()
-    opponent = serializers.SerializerMethodField()
 
     class Meta:
         model = PlayerStat
@@ -26,11 +25,6 @@ class PlayerStatSerializer(serializers.ModelSerializer):
     def get_game_date(self, obj):
         return obj.game.game_date
 
-    def get_opponent(self, obj):
-        game = obj.game
-        if game.home_team == obj.team:
-            return game.away_team.abbreviation
-        return game.home_team.abbreviation
 
 class PlayByPlaySerializer(serializers.ModelSerializer):
     game = GameSerializer(read_only=True)

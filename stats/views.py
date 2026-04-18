@@ -9,8 +9,8 @@ from .serializers import PlayerStatSerializer
 
 class PlayerStatViewSet(viewsets.ModelViewSet):
     queryset = PlayerStat.objects.select_related(
-        'player', 'team', 'game', 'game__home_team', 'game__away_team'
-    ).all()
+        'player', 'team', 'game'
+    ).all().order_by('-id')
     serializer_class = PlayerStatSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['player', 'team', 'game__season', 'game__game_type']
