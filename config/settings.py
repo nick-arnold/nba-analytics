@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'stats',
     'ingestion',
     'corsheaders',
+     'django_filters',
+
 ]
 
 MIDDLEWARE = [
@@ -126,4 +128,8 @@ STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
 
-BALLDONTLIE_API_KEY = env('2ba1a17f-df96-4b88-a40d-7795f7d5c4a6')
+BALLDONTLIE_API_KEY = env('BALLDONTLIE_API_KEY')
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+}
