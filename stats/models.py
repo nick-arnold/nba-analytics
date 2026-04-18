@@ -37,7 +37,7 @@ class PlayByPlay(models.Model):
     # Shot data (null for non-shot events)
     loc_x = models.FloatField(null=True, blank=True)
     loc_y = models.FloatField(null=True, blank=True)
-    shot_distance = models.FloatField(null=True, blank=True)
+    shot_distance = models.FloatField(null=True, blank=True)    
     shot_made = models.BooleanField(null=True, blank=True)
     shot_value = models.IntegerField(null=True, blank=True)  # 2 or 3
 
@@ -51,3 +51,34 @@ class PlayByPlay(models.Model):
 
     def __str__(self):
         return f"{self.game} - Period {self.period} - {self.event_type}"
+    
+class PlayerStat(models.Model):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='player_stats')
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='stats')
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='player_stats')
+
+    minutes = models.CharField(max_length=10, null=True, blank=True)
+    pts = models.IntegerField(null=True, blank=True)
+    reb = models.IntegerField(null=True, blank=True)
+    ast = models.IntegerField(null=True, blank=True)
+    stl = models.IntegerField(null=True, blank=True)
+    blk = models.IntegerField(null=True, blank=True)
+    turnover = models.IntegerField(null=True, blank=True)
+    fgm = models.IntegerField(null=True, blank=True)
+    fga = models.IntegerField(null=True, blank=True)
+    fg_pct = models.FloatField(null=True, blank=True)
+    fg3m = models.IntegerField(null=True, blank=True)
+    fg3a = models.IntegerField(null=True, blank=True)
+    fg3_pct = models.FloatField(null=True, blank=True)
+    ftm = models.IntegerField(null=True, blank=True)
+    fta = models.IntegerField(null=True, blank=True)
+    ft_pct = models.FloatField(null=True, blank=True)
+    oreb = models.IntegerField(null=True, blank=True)
+    dreb = models.IntegerField(null=True, blank=True)
+    pf = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('game', 'player')
+
+    def __str__(self):
+        return f"{self.player} - {self.game}"

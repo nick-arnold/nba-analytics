@@ -11,7 +11,9 @@ class Player(models.Model):
         ('F-C', 'Forward-Center'),
     ]
 
-    nba_player_id = models.CharField(max_length=20, unique=True)
+    
+    bdl_player_id = models.IntegerField(null=True, blank=True, unique=True)
+    nba_player_id = models.CharField(max_length=50, null=True, blank=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     position = models.CharField(max_length=5, choices=POSITIONS, blank=True)

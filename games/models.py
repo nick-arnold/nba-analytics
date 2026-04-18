@@ -17,7 +17,8 @@ class Game(models.Model):
         ('play_in', 'Play-In'),
         ('preseason', 'Preseason'),
     ]
-
+    
+    postseason = models.BooleanField(default=False)
     home_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='home_games')
     away_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='away_games')
     game_date = models.DateField()
