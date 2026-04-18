@@ -125,3 +125,5 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
+
+BALLDONTLIE_API_KEY = env('2ba1a17f-df96-4b88-a40d-7795f7d5c4a6')
