@@ -1,0 +1,137 @@
+<div class="thesis">
+
+    <a class="back-link" routerLink="/cv">← CV</a>
+  
+    <div class="thesis-header">
+      <p class="thesis-kicker">M.S. Thesis · Oregon State University · 2015</p>
+      <h1>Automation and Evaluation of Graduated Dot Maps</h1>
+      <p class="thesis-authors">Nicholas D. Arnold, Bernhard Jenny & Denis White</p>
+    </div>
+  
+    <div class="citation-block">
+      <p class="citation-label">Citation</p>
+      <p class="citation-text">
+        Arnold, N. D., Jenny, B., & White, D. (2017). Automation and evaluation of graduated dot maps.
+        <em>International Journal of Geographical Information Science, 31</em>(12), 2524–2542.
+      </p>
+      <a class="citation-doi" href="https://doi.org/10.1080/13658816.2017.1359747" target="_blank">
+        doi.org/10.1080/13658816.2017.1359747 →
+      </a>
+    </div>
+  
+    <section>
+      <h2>The problem with dot maps</h2>
+      <p>
+        Dot maps are one of the oldest and most intuitive tools in cartography — place a dot for every
+        unit of something (people, cows, bushels of corn) and let the reader perceive density visually.
+        But when you try to automate dot map generation in GIS software, a stubborn problem emerges:
+        where exactly do you put each dot?
+      </p>
+      <p>
+        The dominant approach is pseudo-random placement — scatter dots randomly within each geographic
+        enumeration area (a county, a census tract, a country). It's fast and simple, but the results
+        are often poor. Dense areas end up with hundreds of overlapping dots stacked on top of each other,
+        forming dark blobs that tell the reader nothing useful. Sparse areas look fine. The map becomes
+        simultaneously overloaded and unreadable in the places that matter most.
+      </p>
+    </section>
+  
+    <section>
+      <h2>The idea behind graduated dot maps</h2>
+      <p>
+        The central insight of this research is straightforward: instead of using many small same-size dots,
+        use fewer dots of varying sizes. A county with ten times the population of its neighbor doesn't need
+        ten times the dots — it needs a smaller number of larger dots that together convey a proportionally
+        greater quantity.
+      </p>
+      <p>
+        This is the graduated dot map. The technique had been used manually by skilled cartographers for
+        decades, but no one had built a reliable automated method for generating them. That's the gap this
+        research fills.
+      </p>
+    </section>
+  
+    <section>
+      <h2>The method</h2>
+      <p>
+        The automated algorithm works in two stages. First, it places dots using
+        <strong>blue-noise patterns</strong> — a distribution strategy borrowed from computer graphics
+        that spaces dots evenly without the rigid regularity of a grid. Blue-noise placement looks
+        natural to the human eye and eliminates the accidental clustering that plagues pseudo-random methods.
+      </p>
+      <p>
+        Second, a <strong>clustering algorithm</strong> scans the placed dots and identifies groups that
+        are too dense to read comfortably. It merges those groups into single dots of larger size,
+        preserving the quantitative information while dramatically reducing visual clutter. The result
+        is a map where every dot is legible and the reader can actually estimate values rather than
+        just perceiving a vague gradient of darkness.
+      </p>
+    </section>
+  
+    <section>
+      <h2>What the study found</h2>
+      <p>
+        To test whether any of this actually made a difference for map readers, a user study was conducted
+        with nearly 300 participants. Four map types were compared head-to-head:
+      </p>
+      <ul>
+        <li>Graduated dot maps (the new method)</li>
+        <li>Pseudo-random dot maps (the standard automated approach)</li>
+        <li>Blue-noise dot maps (random placement replaced with blue-noise, but no size graduation)</li>
+        <li>Proportional circle maps (a common alternative to dot maps)</li>
+      </ul>
+      <p>
+        Participants were asked to estimate values from each map type. Graduated dot maps produced
+        significantly more accurate estimates than the other three types. Participants also expressed
+        a clear preference for graduated dot maps — they were easier to read and less visually
+        overwhelming.
+      </p>
+      <p>
+        The accuracy advantage is likely explained by the reduced dot count. When an enumeration area
+        contains 12 dots instead of 120, the reader can actually count or group them. The cognitive
+        load drops dramatically and estimation improves.
+      </p>
+    </section>
+  
+    <section>
+      <h2>Why it matters</h2>
+      <p>
+        Most GIS software — including ArcGIS and QGIS — still defaults to pseudo-random dot placement
+        when generating dot density maps. The tools that cartographers rely on every day produce maps
+        that are demonstrably harder to read than they need to be.
+      </p>
+      <p>
+        This research provides both the algorithmic foundation for a better approach and the empirical
+        evidence that it works. The combination of blue-noise placement and size-based clustering is
+        something that could be implemented as a standard option in any mapping software. The fact
+        that it hasn't been yet is mostly a matter of inertia — the pseudo-random method is decades
+        old and deeply embedded in existing workflows.
+      </p>
+      <p>
+        The work also received recognition beyond academia — the graduated dot map technique is
+        discussed in a standalone section (§19.4, pp. 352–353) of the fourth edition of
+        <em>Thematic Cartography and Geovisualization</em> by Slocum et al. (2022), one of the
+        standard textbooks in the field.
+      </p>
+    </section>
+  
+    <section class="abstract-section">
+      <h2>Abstract</h2>
+      <p>
+        Dot mapping is a traditional method for visualizing quantitative data, but current automated
+        dot mapping techniques are limited. The most common automated method places dots pseudo-randomly
+        within enumeration areas, which can result in overlapping dots and very dense dot clusters for
+        areas with large values. These issues affect users' ability to estimate values. Graduated dot
+        maps use dots with different sizes that represent different values. With graduated dot maps the
+        number of dots on a map is smaller, reducing the likelihood of overlapping dots. This research
+        introduces an automated method of generating graduated dot maps that arranges dots with blue-noise
+        patterns to avoid overlap and uses clustering algorithms to replace densely packed dots with those
+        of larger sizes. A user study comparing graduated dot maps, pseudo-random dot maps, blue-noise
+        dot maps and proportional circle maps with almost 300 participants was conducted. Results indicate
+        that map users can more accurately extract values from graduated dot maps than from the other map
+        types. This is likely due to the smaller number of dots per enumeration area in graduated dot maps.
+        Map users also appear to prefer graduated dot maps over other map types.
+      </p>
+    </section>
+  
+  </div>

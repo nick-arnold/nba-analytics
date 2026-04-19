@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-cv',
+  selector: 'app-thesis',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './cv.html',
-  styleUrl: './cv.scss'
+  templateUrl: './thesis.html',
+  styleUrl: './thesis.scss'
 })
-export class CvComponent {}
+export class ThesisComponent {}
