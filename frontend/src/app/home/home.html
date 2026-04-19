@@ -1,14 +1,25 @@
-<h1>NBA Analytics</h1>
-@if (loading) {
-  <p>Loading...</p>
-} @else {
-  <ul>
-    @for (team of teams; track team.id) {
-      <li>
-        <a [routerLink]="['/team', team.id]">
-          {{ team.city }} {{ team.name }} ({{ team.abbreviation }})
-        </a>
-      </li>
+<div class="home">
+    <p class="wordmark">NBA Analytics</p>
+  
+    @if (loading) {
+      <p class="loading">Loading...</p>
+    } @else {
+      <p class="conf-label">Eastern Conference</p>
+      <ul class="team-list">
+        @for (team of east; track team.id) {
+          <li>
+            <a [routerLink]="['/team', team.id]">{{ team.city }} {{ team.name }}</a>
+          </li>
+        }
+      </ul>
+  
+      <p class="conf-label">Western Conference</p>
+      <ul class="team-list">
+        @for (team of west; track team.id) {
+          <li>
+            <a [routerLink]="['/team', team.id]">{{ team.city }} {{ team.name }}</a>
+          </li>
+        }
+      </ul>
     }
-  </ul>
-}
+  </div>

@@ -7,10 +7,12 @@ import { TeamsService } from '../teams.service';
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './home.html'
+  templateUrl: './home.html',
+  styleUrl: './home.scss'
 })
 export class HomeComponent implements OnInit {
-  teams: any[] = [];
+  east: any[] = [];
+  west: any[] = [];
   loading = true;
 
   constructor(
@@ -20,10 +22,11 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.teamsService.getTeams().subscribe((data: any) => {
-      console.log('teams data:', data);
-      this.teams = data.results || data;
-      this.loading = false;
-      this.cdr.detectChanges();
-    });
-  }
-}
+      const teams = data.results || data;
+      this.east = teams
+        .filter((t: any) => t.conference === 'East')
+        .sort((a: any, b: any) => a.city.localeCompare(b.city));
+      this.west = teams
+        .filter((t: any) => t.conference === 'West')
+        .sort((a: any, b: any) => a.city.localeCompare(b.city));
+      thi
