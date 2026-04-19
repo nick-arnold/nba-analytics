@@ -29,4 +29,8 @@ export class HomeComponent implements OnInit {
       this.west = teams
         .filter((t: any) => t.conference === 'West')
         .sort((a: any, b: any) => a.city.localeCompare(b.city));
-      thi
+      this.loading = false;
+      this.cdr.detectChanges();
+    });
+  }
+}
