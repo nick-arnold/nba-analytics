@@ -31,7 +31,8 @@ SELECT
     ps.pf
 FROM stats_playerstat ps
 JOIN games_game g ON ps.game_id = g.id
-WHERE NULLIF(ps.minutes, '')::integer > 0
+WHERE REGEXP_REPLACE(ps.minutes, '[^0-9].*', '') ~ '^[0-9]+$'
+    AND REGEXP_REPLACE(ps.minutes, '[^0-9].*', '')::integer > 0
 WITH DATA;
 
 CREATE UNIQUE INDEX player_game_log_idx
