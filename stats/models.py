@@ -89,6 +89,7 @@ class PlayerStat(models.Model):
         return f"{self.player} - {self.game}"
     
 class PlayerSeasonStats(models.Model):
+    id = models.BigIntegerField(primary_key=True)
     player = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='season_stats')
     team = models.ForeignKey(Team, on_delete=models.DO_NOTHING, related_name='player_season_stats')
     season = models.CharField(max_length=10)
@@ -113,7 +114,6 @@ class PlayerSeasonStats(models.Model):
 
     def __str__(self):
         return f"{self.player} {self.season}"
-
 
 class PlayerGameLog(models.Model):
     playerstat_id = models.IntegerField(primary_key=True)

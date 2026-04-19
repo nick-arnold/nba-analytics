@@ -26,6 +26,7 @@ WITH cleaned AS (
     JOIN games_game g ON ps.game_id = g.id
 )
 SELECT
+    ROW_NUMBER() OVER (ORDER BY player_id, team_id, season) AS id,
     player_id,
     team_id,
     season,
@@ -49,3 +50,6 @@ WITH DATA;
 
 CREATE UNIQUE INDEX player_season_stats_idx
     ON player_season_stats (player_id, team_id, season);
+
+CREATE UNIQUE INDEX player_season_stats_id_idx
+    ON player_season_stats (id);
