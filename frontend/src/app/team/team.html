@@ -28,7 +28,7 @@
             @for (player of players; track player.id) {
               <tr>
                 <td class="left">
-                  <a [routerLink]="['/player', player.id]">{{ player.name }}</a>
+                  <a [routerLink]="['/player', player.player]">{{ player.player_name }}</a>
                 </td>
                 <td>{{ player.gp }}</td>
                 <td>{{ player.ppg }}</td>
