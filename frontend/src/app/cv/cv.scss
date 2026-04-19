@@ -1,0 +1,201 @@
+.cv {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.25rem 5rem;
+  }
+  
+  .cv-header {
+    margin-bottom: 2rem;
+  
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 0 0 4px;
+    }
+  }
+  
+  .cv-title {
+    font-size: 15px;
+    color: #6c757d;
+    margin: 0 0 1rem;
+  }
+  
+  .cv-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    color: #adb5bd;
+  
+    a {
+      color: #adb5bd;
+      text-decoration: none;
+      &:hover { color: #212529; }
+    }
+  }
+  
+  .cv-summary {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #495057;
+    margin-bottom: 3rem;
+    max-width: 600px;
+  }
+  
+  section {
+    margin-bottom: 3rem;
+  
+    h2 {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #adb5bd;
+      margin: 0 0 1.25rem;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    }
+  }
+  
+  .entry {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 16px;
+    margin-bottom: 1.75rem;
+    align-items: start;
+  
+    &:last-child { margin-bottom: 0; }
+  }
+  
+  .entry-main {
+    grid-column: 1;
+  }
+  
+  .entry-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 2px;
+    color: #212529;
+  }
+  
+  .entry-org {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0 0 6px;
+  }
+  
+  .entry-year {
+    font-size: 13px;
+    color: #adb5bd;
+    white-space: nowrap;
+    grid-column: 2;
+    padding-top: 2px;
+  }
+  
+  .entry-desc {
+    font-size: 14px;
+    color: #6c757d;
+    line-height: 1.65;
+    margin: 4px 0 0;
+  }
+  
+  .entry-link {
+    display: inline-block;
+    font-size: 13px;
+    color: #0d6efd;
+    text-decoration: none;
+    margin-top: 4px;
+    &:hover { text-decoration: underline; }
+  }
+  
+  .courses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  
+  .course-tag {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #e9ecef;
+  }
+  
+  .award-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  
+    &:last-child { border-bottom: none; }
+  }
+  
+  .award-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 2px;
+    color: #212529;
+  }
+  
+  .award-org {
+    font-size: 13px;
+    color: #adb5bd;
+    margin: 0;
+  }
+  
+  .pub {
+    margin-bottom: 1.5rem;
+    padding-left: 14px;
+    border-left: 2px solid #e9ecef;
+  
+    &:last-child { margin-bottom: 0; }
+  }
+  
+  .pub-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 3px;
+    color: #212529;
+  }
+  
+  .pub-meta {
+    font-size: 13px;
+    color: #6c757d;
+    line-height: 1.5;
+    margin: 0 0 4px;
+  }
+  
+  .pub-link {
+    font-size: 13px;
+    color: #0d6efd;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+  
+  .mention {
+    font-size: 14px;
+    color: #6c757d;
+    line-height: 1.7;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  
+    &:last-child { border-bottom: none; }
+  
+    em { color: #495057; }
+  }
+  
+  @media (max-width: 540px) {
+    .entry {
+      grid-template-columns: 1fr;
+    }
+  
+    .entry-year {
+      grid-column: 1;
+      order: -1;
+      margin-bottom: 2px;
+    }
+  }
