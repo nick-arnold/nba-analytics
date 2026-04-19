@@ -1,0 +1,244 @@
+.account-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  
+  .back-link {
+    font-size: 13px;
+    color: #6c757d;
+    text-decoration: none;
+    &:hover { color: #212529; }
+  }
+  
+  .account-header {
+    margin: 1.5rem 0 2.5rem;
+  
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 4px;
+    }
+  
+    .email {
+      font-size: 14px;
+      color: #6c757d;
+      margin: 0 0 8px;
+    }
+  }
+  
+  .tier-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+    color: #495057;
+  }
+  
+  section {
+    margin-bottom: 3rem;
+  
+    h2 {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #adb5bd;
+      margin: 0 0 0.5rem;
+    }
+  
+    .hint {
+      font-size: 13px;
+      color: #6c757d;
+      margin: 0 0 1rem;
+    }
+  }
+  
+  .team-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .team-btn {
+    padding: 7px 12px;
+    font-size: 13px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: #fff;
+    color: #212529;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  
+    &:hover { border-color: #adb5bd; }
+  
+    &.active {
+      background: #212529;
+      border-color: #212529;
+      color: #fff;
+    }
+  }
+  
+  .player-search {
+    position: relative;
+    max-width: 320px;
+    margin-bottom: 1rem;
+  
+    input {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 14px;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+  
+      &:focus { border-color: #0d6efd; }
+    }
+  
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      z-index: 10;
+      max-height: 200px;
+      overflow-y: auto;
+  
+      button {
+        display: block;
+        width: 100%;
+        padding: 9px 12px;
+        font-size: 14px;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
+  
+        &:hover { background: #f8f9fa; }
+      }
+    }
+  }
+  
+  .player-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      font-size: 14px;
+    }
+  
+    a {
+      color: #212529;
+      text-decoration: none;
+      &:hover { color: #0d6efd; }
+    }
+  }
+  
+  .remove-btn {
+    font-size: 12px;
+    color: #dc3545;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    &:hover { text-decoration: underline; }
+  }
+  
+  .empty {
+    font-size: 13px;
+    color: #adb5bd;
+  }
+  
+  .field {
+    margin-bottom: 1rem;
+    max-width: 320px;
+  
+    label {
+      display: block;
+      font-size: 13px;
+      color: #6c757d;
+      margin-bottom: 4px;
+    }
+  
+    input {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 14px;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      outline: none;
+      box-sizing: border-box;
+  
+      &:focus { border-color: #0d6efd; }
+    }
+  }
+  
+  .save-btn {
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    background: #212529;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    &:hover { background: #343a40; }
+  }
+  
+  .success-msg {
+    font-size: 13px;
+    color: #198754;
+    margin-bottom: 1rem;
+  }
+  
+  .error-msg {
+    font-size: 13px;
+    color: #dc3545;
+    margin-bottom: 1rem;
+  }
+  
+  .danger-section h2 {
+    color: #dc3545 !important;
+  }
+  
+  .danger-btn {
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 8px;
+    &:hover { background: #bb2d3b; }
+  }
+  
+  .cancel-btn {
+    padding: 9px 18px;
+    font-size: 14px;
+    background: none;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    cursor: pointer;
+    &:hover { border-color: #adb5bd; }
+  }
+  
+  .loading {
+    font-size: 14px;
+    color: #adb5bd;
+  }

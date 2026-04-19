@@ -1,0 +1,96 @@
+<div class="account-page">
+    <a class="back-link" [routerLink]="['/']">← Home</a>
+  
+    @if (loading) {
+      <p class="loading">Loading...</p>
+    } @else {
+      <div class="account-header">
+        <h1>My Account</h1>
+        @if (user) {
+          <p class="email">{{ user.email }}</p>
+        }
+        @if (profile) {
+          <span class="tier-badge">{{ profile.tier }}</span>
+        }
+      </div>
+  
+      <section>
+        <h2>Favorite Teams</h2>
+        <p class="hint">Select teams to follow — they'll appear on your dashboard.</p>
+        <div class="team-grid">
+          @for (team of allTeams; track team.id) {
+            <button
+              class="team-btn"
+              [class.active]="isTeamFavorited(team.id)"
+              (click)="toggleTeam(team)"
+            >
+              {{ team.city }} {{ team.name }}
+            </button>
+          }
+        </div>
+      </section>
+  
+      <section>
+        <h2>Favorite Players</h2>
+        <p class="hint">Search and add players to follow.</p>
+        <div class="player-search">
+          <input
+            type="text"
+            placeholder="Search players..."
+            [(ngModel)]="playerSearchQuery"
+            (input)="onPlayerSearch()"
+          />
+          @if (playerSearchResults.length > 0) {
+            <div class="search-dropdown">
+              @for (player of playerSearchResults; track player.id) {
+                <button (click)="addPlayer(player)">
+                  {{ player.first_name }} {{ player.last_name }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+        @if (profile?.favorite_players?.length > 0) {
+          <ul class="player-list">
+            @for (player of profile.favorite_players; track player.id) {
+              <li>
+                <a [routerLink]="['/player', player.id]">
+                  {{ player.first_name }} {{ player.last_name }}
+                </a>
+                <button class="remove-btn" (click)="removePlayer(player.id)">Remove</button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="empty">No favorite players yet.</p>
+        }
+      </section>
+  
+      <section>
+        <h2>Change Password</h2>
+        @if (passwordMsg) { <p class="success-msg">{{ passwordMsg }}</p> }
+        @if (passwordError) { <p class="error-msg">{{ passwordError }}</p> }
+        <div class="field">
+          <label>Current password</label>
+          <input type="password" [(ngModel)]="currentPassword" />
+        </div>
+        <div class="field">
+          <label>New password</label>
+          <input type="password" [(ngModel)]="newPassword" />
+        </div>
+        <button class="save-btn" (click)="changePassword()">Update password</button>
+      </section>
+  
+      <section class="danger-section">
+        <h2>Delete Account</h2>
+        <p class="hint">This will permanently delete your account and all saved preferences.</p>
+        @if (!deleteConfirm) {
+          <button class="danger-btn" (click)="deleteConfirm = true">Delete my account</button>
+        } @else {
+          <p class="error-msg">Are you sure? This cannot be undone.</p>
+          <button class="danger-btn" (click)="deleteAccount()">Yes, delete my account</button>
+          <button class="cancel-btn" (click)="deleteConfirm = false">Cancel</button>
+        }
+      </section>
+    }
+  </div>
