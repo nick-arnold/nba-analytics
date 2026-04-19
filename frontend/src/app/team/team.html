@@ -1,0 +1,33 @@
+@if (loading) {
+    <p>Loading...</p>
+  } @else {
+    <a [routerLink]="['/']">← Back</a>
+    
+    @if (team) {
+      <h1>{{ team.city }} {{ team.name }}</h1>
+    }
+  
+    <h2>2024-25 Games</h2>
+    <ul>
+      @for (game of games; track game.id) {
+        <li>
+          {{ game.game_date }} 
+          @if (game.home_team.id === +teamId) {
+            vs {{ game.away_team.abbreviation }} — {{ game.home_score }}-{{ game.away_score }}
+          } @else {
+            @ {{ game.home_team.abbreviation }} — {{ game.away_score }}-{{ game.home_score }}
+          }
+        </li>
+      }
+    </ul>
+
+    <h2>Roster</h2>
+    <ul>
+    @for (player of players; track player.id) {
+        <li>
+        <a [routerLink]="['/player', player.id]">{{ player.name }}</a>
+        </li>
+    }
+    </ul>
+
+  }

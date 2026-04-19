@@ -1,0 +1,36 @@
+@if (loading) {
+    <p>Loading...</p>
+  } @else {
+    <a [routerLink]="['/']">← Home</a>
+  
+    @if (player) {
+      <h1>{{ player.first_name }} {{ player.last_name }}</h1>
+      <p>{{ player.position }}</p>
+    }
+  
+    <h2>Game Log</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>PTS</th>
+          <th>REB</th>
+          <th>AST</th>
+          <th>TOV</th>
+          <th>MIN</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (stat of stats; track stat.id) {
+          <tr>
+            <td>{{ stat.game_date }}</td>
+            <td>{{ stat.pts }}</td>
+            <td>{{ stat.reb }}</td>
+            <td>{{ stat.ast }}</td>
+            <td>{{ stat.turnover }}</td>
+            <td>{{ stat.minutes }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }

@@ -1,27 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TeamsService } from './teams.service';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { NavComponent } from './nav/nav';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
+  imports: [RouterOutlet, NavComponent],
   templateUrl: './app.html'
 })
-export class AppComponent implements OnInit {
-  teams: any[] = [];
-  loading = true;
-
-  constructor(
-    private teamsService: TeamsService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit() {
-    this.teamsService.getTeams().subscribe(data => {
-      this.teams = data;
-      this.loading = false;
-      this.cdr.detectChanges();
-    });
-  }
-}
+export class AppComponent {}
