@@ -87,3 +87,68 @@ class PlayerStat(models.Model):
 
     def __str__(self):
         return f"{self.player} - {self.game}"
+    
+class PlayerSeasonStats(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='season_stats')
+    team = models.ForeignKey(Team, on_delete=models.DO_NOTHING, related_name='player_season_stats')
+    season = models.CharField(max_length=10)
+    gp = models.IntegerField()
+    ppg = models.DecimalField(max_digits=5, decimal_places=1)
+    rpg = models.DecimalField(max_digits=5, decimal_places=1)
+    apg = models.DecimalField(max_digits=5, decimal_places=1)
+    spg = models.DecimalField(max_digits=5, decimal_places=1)
+    bpg = models.DecimalField(max_digits=5, decimal_places=1)
+    topg = models.DecimalField(max_digits=5, decimal_places=1)
+    fg_pct = models.DecimalField(max_digits=5, decimal_places=3, null=True)
+    fg3_pct = models.DecimalField(max_digits=5, decimal_places=3, null=True)
+    ft_pct = models.DecimalField(max_digits=5, decimal_places=3, null=True)
+    total_pts = models.IntegerField()
+    total_tov = models.IntegerField()
+    total_reb = models.IntegerField()
+    total_ast = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'player_season_stats'
+
+    def __str__(self):
+        return f"{self.player} {self.season}"
+
+
+class PlayerGameLog(models.Model):
+    playerstat_id = models.IntegerField(primary_key=True)
+    player = models.ForeignKey(Player, on_delete=models.DO_NOTHING, related_name='game_log')
+    team = models.ForeignKey(Team, on_delete=models.DO_NOTHING, related_name='player_game_logs')
+    game = models.ForeignKey('games.Game', on_delete=models.DO_NOTHING, related_name='player_game_logs')
+    season = models.CharField(max_length=10)
+    game_date = models.DateField()
+    home_team_id = models.IntegerField()
+    away_team_id = models.IntegerField()
+    home_score = models.IntegerField(null=True)
+    away_score = models.IntegerField(null=True)
+    minutes = models.CharField(max_length=10, null=True)
+    pts = models.IntegerField(null=True)
+    reb = models.IntegerField(null=True)
+    ast = models.IntegerField(null=True)
+    stl = models.IntegerField(null=True)
+    blk = models.IntegerField(null=True)
+    turnover = models.IntegerField(null=True)
+    fgm = models.IntegerField(null=True)
+    fga = models.IntegerField(null=True)
+    fg_pct = models.FloatField(null=True)
+    fg3m = models.IntegerField(null=True)
+    fg3a = models.IntegerField(null=True)
+    fg3_pct = models.FloatField(null=True)
+    ftm = models.IntegerField(null=True)
+    fta = models.IntegerField(null=True)
+    ft_pct = models.FloatField(null=True)
+    oreb = models.IntegerField(null=True)
+    dreb = models.IntegerField(null=True)
+    pf = models.IntegerField(null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'player_game_log'
+
+    def __str__(self):
+        return f"{self.player} - {self.game_date}"

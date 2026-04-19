@@ -1,10 +1,10 @@
 from rest_framework.routers import DefaultRouter
-from .views import PlayByPlayViewSet
-from .views import PlayerStatViewSet
-
+from .views import PlayByPlayViewSet, PlayerStatViewSet, PlayerSeasonStatsViewSet, PlayerGameLogViewSet
 
 router = DefaultRouter()
 router.register(r'playbyplay', PlayByPlayViewSet)
 router.register(r'playerstats', PlayerStatViewSet)
+router.register(r'player-season-stats', PlayerSeasonStatsViewSet, basename='player-season-stats')
+router.register(r'player-game-log', PlayerGameLogViewSet, basename='player-game-log')
 
 urlpatterns = router.urls

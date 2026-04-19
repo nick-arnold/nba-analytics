@@ -18,3 +18,28 @@ class PlayerStatViewSet(viewsets.ModelViewSet):
 class PlayByPlayViewSet(viewsets.ModelViewSet):
     queryset = PlayByPlay.objects.all()
     serializer_class = PlayByPlaySerializer
+
+from .models import PlayerSeasonStats, PlayerGameLog
+from .serializers import PlayerSeasonStatsSerializer, PlayerGameLogSerializer
+
+
+class PlayerSeasonStatsViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PlayerSeasonStatsSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['player', 'team', 'season']
+
+    def get_queryset(self):
+        return PlayerSeasonStats.objects.select_related(
+            'player', 'team'
+        ).all()
+
+
+class PlayerGameLogViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PlayerGameLogSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['player', 'team', 'season']
+
+    def get_queryset(self):
+        return PlayerGameLog.objects.select_related(
+            'player', 'team', 'game'
+        ).all().order_by('game_date')
