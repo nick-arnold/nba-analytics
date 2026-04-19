@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import PlayerStat
 from .serializers import PlayerStatSerializer
-
+from rest_framework.pagination import LimitOffsetPagination
 
 class PlayerStatViewSet(viewsets.ModelViewSet):
     queryset = PlayerStat.objects.select_related(
