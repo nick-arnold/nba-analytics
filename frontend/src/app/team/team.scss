@@ -1,0 +1,118 @@
+.team-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  
+  .back-link {
+    font-size: 13px;
+    color: #6c757d;
+    text-decoration: none;
+  
+    &:hover {
+      color: #212529;
+    }
+  }
+  
+  .team-header {
+    margin: 1.5rem 0 2.5rem;
+  
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 4px;
+    }
+  
+    .record {
+      font-size: 14px;
+      color: #6c757d;
+      margin: 0;
+    }
+  }
+  
+  section {
+    margin-bottom: 3rem;
+  
+    h2 {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #adb5bd;
+      margin: 0 0 0.75rem;
+    }
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  
+    th {
+      text-align: right;
+      font-size: 11px;
+      font-weight: 500;
+      color: #adb5bd;
+      padding: 0 8px 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  
+      &.left {
+        text-align: left;
+      }
+    }
+  
+    td {
+      text-align: right;
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      color: #212529;
+  
+      &.left {
+        text-align: left;
+      }
+  
+      &.muted {
+        color: #6c757d;
+      }
+  
+      &.small {
+        font-size: 12px;
+      }
+  
+      a {
+        color: #212529;
+        text-decoration: none;
+  
+        &:hover {
+          color: #0d6efd;
+        }
+      }
+    }
+  }
+  
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 4px;
+  
+    &.win {
+      background: #d1fae5;
+      color: #065f46;
+    }
+  
+    &.loss {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  }
+  
+  @media (max-width: 540px) {
+    .data-table {
+      font-size: 13px;
+  
+      th, td {
+        padding: 8px 5px;
+      }
+    }
+  }
