@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-nav',
@@ -20,7 +21,11 @@ export class NavComponent {
   showResults = false;
   private searchSubject = new Subject<string>();
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    public auth: AuthService
+  ) {
     this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -38,9 +43,7 @@ export class NavComponent {
     });
   }
 
-  onSearch() {
-    this.searchSubject.next(this.searchQuery);
-  }
+  onSearch() { this.searchSubject.next(this.searchQuery); }
 
   goToPlayer(playerId: number) {
     this.showResults = false;
@@ -48,7 +51,7 @@ export class NavComponent {
     this.router.navigate(['/player', playerId]);
   }
 
-  hideResults() {
-    setTimeout(() => this.showResults = false, 200);
-  }
+  hideResults() { setTimeout(() => this.showResults = false, 200); }
+
+  logout() { this.auth.logout(); }
 }
