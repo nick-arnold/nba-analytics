@@ -44,6 +44,20 @@ export class AuthService {
     return this.accessToken;
   }
 
+  getRefreshToken(): string | null {
+    return this.refreshToken;
+  }
+
+  updateAccessToken(newToken: string) {
+    this.accessToken = newToken;
+    const stored = localStorage.getItem('auth');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      parsed.access = newToken;
+      localStorage.setItem('auth', JSON.stringify(parsed));
+    }
+  }
+
   isLoggedIn(): boolean {
     return !!this.accessToken;
   }
