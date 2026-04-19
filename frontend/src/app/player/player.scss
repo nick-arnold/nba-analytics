@@ -1,0 +1,164 @@
+.player-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  
+  .back-link {
+    font-size: 13px;
+    color: #6c757d;
+    text-decoration: none;
+    &:hover { color: #212529; }
+  }
+  
+  .player-header {
+    margin: 1.5rem 0 2rem;
+  
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 4px;
+    }
+  
+    .player-pos {
+      font-size: 14px;
+      color: #6c757d;
+      margin: 0;
+    }
+  }
+  
+  .season-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 2rem;
+  }
+  
+  .season-tab {
+    padding: 5px 14px;
+    font-size: 13px;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    background: #fff;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  
+    &:hover { border-color: #adb5bd; color: #212529; }
+  
+    &.active {
+      background: #212529;
+      border-color: #212529;
+      color: #fff;
+    }
+  }
+  
+  section {
+    margin-bottom: 3rem;
+  
+    h2 {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #adb5bd;
+      margin: 0 0 1rem;
+    }
+  }
+  
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+  }
+  
+  .stat-card {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 12px 8px;
+    text-align: center;
+  
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #adb5bd;
+      margin: 0 0 4px;
+    }
+  
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: #212529;
+      margin: 0;
+    }
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  
+    th {
+      text-align: right;
+      font-size: 11px;
+      font-weight: 500;
+      color: #adb5bd;
+      padding: 0 6px 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+      white-space: nowrap;
+  
+      &.left { text-align: left; }
+    }
+  
+    td {
+      text-align: right;
+      padding: 9px 6px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      color: #212529;
+      white-space: nowrap;
+  
+      &.left { text-align: left; }
+      &.muted { color: #6c757d; }
+      &.small { font-size: 12px; }
+      &.highlight { font-weight: 600; }
+    }
+  }
+  
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+  
+    &.win {
+      background: #d1fae5;
+      color: #065f46;
+    }
+  
+    &.loss {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  }
+  
+  .loading {
+    font-size: 14px;
+    color: #adb5bd;
+    padding: 2rem 1.25rem;
+  }
+  
+  @media (max-width: 640px) {
+    .data-table {
+      font-size: 12px;
+  
+      th, td {
+        padding: 7px 4px;
+      }
+    }
+  
+    .stat-grid {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }

@@ -38,6 +38,7 @@ class PlayerGameLogViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PlayerGameLogSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['player', 'team', 'season']
+    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         return PlayerGameLog.objects.select_related(
