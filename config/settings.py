@@ -1,7 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
 import environ
-
+from celery.schedules import crontab
 env = environ.Env()
 environ.Env.read_env()
 
@@ -103,4 +103,12 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
+}
+
+
+CELERY_BEAT_SCHEDULE = {
+    'nightly-ingest': {
+        'task': 'config.tasks.nightly_ingest',
+        'schedule': crontab(hour=6, minute=0),  # 6am UTC = 2am ET
+    },
 }
