@@ -132,3 +132,57 @@
       }
     }
   }
+
+  .records {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: baseline;
+    margin-top: 4px;
+  }
+  
+  .record {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+  
+    &.muted { color: #adb5bd; }
+  }
+  
+  .record-divider {
+    font-size: 14px;
+    color: #adb5bd;
+  }
+  
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  
+    h2 { margin: 0; }
+  }
+  
+  .game-filter-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  
+  .filter-tab {
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    background: #fff;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  
+    &:hover { border-color: #adb5bd; color: #212529; }
+  
+    &.active {
+      background: #212529;
+      border-color: #212529;
+      color: #fff;
+    }
+  }

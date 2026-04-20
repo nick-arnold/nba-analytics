@@ -13,12 +13,14 @@ import { forkJoin } from 'rxjs';
 })
 export class Team implements OnInit {
   team: any = null;
-  games: any[] = [];
+  regularGames: any[] = [];
+  playoffGames: any[] = [];
   players: any[] = [];
   availableSeasons: string[] = [];
   loading = true;
   public teamId: string = '';
   selectedSeason: string = '';
+  gameFilter: 'regular' | 'playoffs' | 'all' = 'regular';
 
   getCurrentSeason(): string {
     const now = new Date();
@@ -31,15 +33,39 @@ export class Team implements OnInit {
     }
   }
 
+  get filteredGames(): any[] {
+    if (this.gameFilter === 'playoffs') return this.playoffGames;
+    if (this.gameFilter === 'all') return [...this.regularGames, ...this.playoffGames]
+      .sort((a, b) => new Date(b.game_date).getTime() - new Date(a.game_date).getTime());
+    return this.regularGames;
+  }
+
   get record(): { wins: number; losses: number } {
     let wins = 0;
     let losses = 0;
-    this.games.forEach(game => {
+    this.regularGames.forEach(game => {
       const isHome = game.home_team.id === +this.teamId;
       const teamScore = isHome ? game.home_score : game.away_score;
       const oppScore = isHome ? game.away_score : game.home_score;
-      if (teamScore > oppScore) wins++;
-      else losses++;
+      if (teamScore !== null && oppScore !== null) {
+        if (teamScore > oppScore) wins++;
+        else losses++;
+      }
+    });
+    return { wins, losses };
+  }
+
+  get playoffRecord(): { wins: number; losses: number } {
+    let wins = 0;
+    let losses = 0;
+    this.playoffGames.forEach(game => {
+      const isHome = game.home_team.id === +this.teamId;
+      const teamScore = isHome ? game.home_score : game.away_score;
+      const oppScore = isHome ? game.away_score : game.home_score;
+      if (teamScore !== null && oppScore !== null) {
+        if (teamScore > oppScore) wins++;
+        else losses++;
+      }
     });
     return { wins, losses };
   }
@@ -77,17 +103,26 @@ export class Team implements OnInit {
     this.loading = true;
 
     forkJoin({
-      home: this.http.get(`/api/games/games/?home_team=${this.teamId}&season=${season}&game_type=regular_season`),
-      away: this.http.get(`/api/games/games/?away_team=${this.teamId}&season=${season}&game_type=regular_season`),
+      homeReg: this.http.get(`/api/games/games/?home_team=${this.teamId}&season=${season}&game_type=regular_season`),
+      awayReg: this.http.get(`/api/games/games/?away_team=${this.teamId}&season=${season}&game_type=regular_season`),
+      homePlay: this.http.get(`/api/games/games/?home_team=${this.teamId}&season=${season}&game_type=playoff`),
+      awayPlay: this.http.get(`/api/games/games/?away_team=${this.teamId}&season=${season}&game_type=playoff`),
       roster: this.http.get(`/api/stats/player-season-stats/?team=${this.teamId}&season=${season}&limit=50`)
     }).subscribe((results: any) => {
-      const homeGames = results.home.results || results.home;
-      const awayGames = results.away.results || results.away;
-      this.games = [...homeGames, ...awayGames]
-        .sort((a, b) => new Date(a.game_date).getTime() - new Date(b.game_date).getTime());
+      this.regularGames = [
+        ...(results.homeReg.results || results.homeReg),
+        ...(results.awayReg.results || results.awayReg)
+      ].sort((a, b) => new Date(b.game_date).getTime() - new Date(a.game_date).getTime());
+
+      this.playoffGames = [
+        ...(results.homePlay.results || results.homePlay),
+        ...(results.awayPlay.results || results.awayPlay)
+      ].sort((a, b) => new Date(b.game_date).getTime() - new Date(a.game_date).getTime());
 
       this.players = (results.roster.results || results.roster)
         .sort((a: any, b: any) => parseFloat(b.ppg) - parseFloat(a.ppg));
+
+      this.gameFilter = this.playoffGames.length > 0 ? 'playoffs' : 'regular';
 
       this.loading = false;
       this.cdr.detectChanges();
@@ -97,5 +132,9 @@ export class Team implements OnInit {
   selectSeason(season: string) {
     this.router.navigate(['/team', this.teamId, season]);
     this.loadSeason(season);
+  }
+
+  setGameFilter(filter: 'regular' | 'playoffs' | 'all') {
+    this.gameFilter = filter;
   }
 }
