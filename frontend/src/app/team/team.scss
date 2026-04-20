@@ -8,14 +8,11 @@
     font-size: 13px;
     color: #6c757d;
     text-decoration: none;
-  
-    &:hover {
-      color: #212529;
-    }
+    &:hover { color: #212529; }
   }
   
   .team-header {
-    margin: 1.5rem 0 2.5rem;
+    margin: 1.5rem 0 1.5rem;
   
     h1 {
       font-size: 24px;
@@ -27,6 +24,32 @@
       font-size: 14px;
       color: #6c757d;
       margin: 0;
+    }
+  }
+  
+  .season-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 2rem;
+  }
+  
+  .season-tab {
+    padding: 5px 14px;
+    font-size: 13px;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    background: #fff;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  
+    &:hover { border-color: #adb5bd; color: #212529; }
+  
+    &.active {
+      background: #212529;
+      border-color: #212529;
+      color: #fff;
     }
   }
   
@@ -55,9 +78,7 @@
       padding: 0 8px 8px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   
-      &.left {
-        text-align: left;
-      }
+      &.left { text-align: left; }
     }
   
     td {
@@ -66,25 +87,14 @@
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       color: #212529;
   
-      &.left {
-        text-align: left;
-      }
-  
-      &.muted {
-        color: #6c757d;
-      }
-  
-      &.small {
-        font-size: 12px;
-      }
+      &.left { text-align: left; }
+      &.muted { color: #6c757d; }
+      &.small { font-size: 12px; }
   
       a {
         color: #212529;
         text-decoration: none;
-  
-        &:hover {
-          color: #0d6efd;
-        }
+        &:hover { color: #0d6efd; }
       }
     }
   }
@@ -105,6 +115,12 @@
       background: #fee2e2;
       color: #991b1b;
     }
+  }
+  
+  .loading {
+    font-size: 14px;
+    color: #adb5bd;
+    padding: 2rem 1.25rem;
   }
   
   @media (max-width: 540px) {

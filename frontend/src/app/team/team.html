@@ -8,7 +8,20 @@
       @if (team) {
         <div class="team-header">
           <h1>{{ team.city }} {{ team.name }}</h1>
-          <p class="record">{{ record.wins }}–{{ record.losses }} · 2024–25</p>
+          <p class="record">{{ record.wins }}–{{ record.losses }} · {{ selectedSeason }}</p>
+        </div>
+      }
+  
+      @if (availableSeasons.length > 1) {
+        <div class="season-tabs">
+          @for (season of availableSeasons; track season) {
+            <button
+              class="season-tab"
+              [class.active]="season === selectedSeason"
+              (click)="selectSeason(season)">
+              {{ season }}
+            </button>
+          }
         </div>
       }
   

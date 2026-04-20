@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 
@@ -15,8 +15,21 @@ export class Team implements OnInit {
   team: any = null;
   games: any[] = [];
   players: any[] = [];
+  availableSeasons: string[] = [];
   loading = true;
   public teamId: string = '';
+  selectedSeason: string = '';
+
+  getCurrentSeason(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    if (month >= 10) {
+      return `${year}-${String(year + 1).slice(-2)}`;
+    } else {
+      return `${year - 1}-${String(year).slice(-2)}`;
+    }
+  }
 
   get record(): { wins: number; losses: number } {
     let wins = 0;
@@ -33,22 +46,40 @@ export class Team implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.teamId = this.route.snapshot.paramMap.get('id') || '';
+    const seasonParam = this.route.snapshot.paramMap.get('season');
+    this.selectedSeason = seasonParam || this.getCurrentSeason();
 
     this.http.get(`/api/games/teams/${this.teamId}/`).subscribe((data: any) => {
       this.team = data;
       this.cdr.detectChanges();
     });
 
+    this.http.get(`/api/stats/player-season-stats/?team=${this.teamId}&limit=200`)
+      .subscribe((data: any) => {
+        const allSeasons = (data.results || data).map((s: any) => s.season);
+        this.availableSeasons = [...new Set(allSeasons) as Set<string>]
+          .sort((a, b) => b.localeCompare(a));
+        this.cdr.detectChanges();
+      });
+
+    this.loadSeason(this.selectedSeason);
+  }
+
+  loadSeason(season: string) {
+    this.selectedSeason = season;
+    this.loading = true;
+
     forkJoin({
-      home: this.http.get(`/api/games/games/?home_team=${this.teamId}&season=2024-25`),
-      away: this.http.get(`/api/games/games/?away_team=${this.teamId}&season=2024-25`),
-      roster: this.http.get(`/api/stats/player-season-stats/?team=${this.teamId}&season=2024-25&limit=50`)
+      home: this.http.get(`/api/games/games/?home_team=${this.teamId}&season=${season}&game_type=regular_season`),
+      away: this.http.get(`/api/games/games/?away_team=${this.teamId}&season=${season}&game_type=regular_season`),
+      roster: this.http.get(`/api/stats/player-season-stats/?team=${this.teamId}&season=${season}&limit=50`)
     }).subscribe((results: any) => {
       const homeGames = results.home.results || results.home;
       const awayGames = results.away.results || results.away;
@@ -61,5 +92,10 @@ export class Team implements OnInit {
       this.loading = false;
       this.cdr.detectChanges();
     });
+  }
+
+  selectSeason(season: string) {
+    this.router.navigate(['/team', this.teamId, season]);
+    this.loadSeason(season);
   }
 }
