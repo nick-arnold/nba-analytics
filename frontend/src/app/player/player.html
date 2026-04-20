@@ -77,6 +77,15 @@
         </section>
       }
   
+      <section>
+        <h2>Turnover Rate (%)</h2>
+        <app-turnover-tracker
+          [playerId]="playerId"
+          [season]="selectedSeason"
+          [chartOnly]="true">
+        </app-turnover-tracker>
+      </section>
+  
       @if (filteredGameLog.length > 0) {
         <section>
           <h2>Game log</h2>

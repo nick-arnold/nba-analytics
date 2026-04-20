@@ -13,6 +13,9 @@ import { forkJoin } from 'rxjs';
 export class TurnoverTrackerComponent implements OnInit, OnChanges {
   @Input() teamId: string = '';
   @Input() season: string = '';
+  @Input() playerId: string = '';
+  @Input() chartOnly: boolean = false;
+
   @ViewChild('chartCanvas', { static: false }) chartCanvas!: ElementRef<HTMLCanvasElement>;
 
   loading = true;
@@ -41,11 +44,13 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    if (this.teamId && this.season) this.loadData();
+    if (this.season) this.loadData();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ((changes['teamId'] || changes['season']) && this.teamId && this.season) this.loadData();
+    if ((changes['teamId'] || changes['season'] || changes['playerId']) && this.season) {
+      this.loadData();
+    }
   }
 
   parseMinutes(min: string | null): number {
@@ -80,8 +85,13 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
 
   loadData() {
     this.loading = true;
+
+    const logUrl = this.playerId
+      ? `/api/stats/player-game-log/?player=${this.playerId}&season=${this.season}&limit=2000`
+      : `/api/stats/player-game-log/?team=${this.teamId}&season=${this.season}&limit=2000`;
+
     forkJoin({
-      log: this.http.get(`/api/stats/player-game-log/?team=${this.teamId}&season=${this.season}&limit=2000`),
+      log: this.http.get(logUrl),
       league: this.http.get(`/api/stats/league-tov-avg/?season=${this.season}`)
     }).subscribe((results: any) => {
       const rows: any[] = results.log.results || results.log;
@@ -133,7 +143,7 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
       this.players = Array.from(playerMap.values())
-        .filter(p => p.gp >= this.minUsageGames)
+        .filter(p => this.playerId ? true : p.gp >= this.minUsageGames)
         .map(p => {
           const sorted = p.games.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
           const tovValues = sorted.map((g: any) => g.tov);
@@ -158,14 +168,14 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
             ballSecurity: bsr,
           };
         })
-        .filter(p => p.astPlusTovPerGame >= 3.0 && p.fgaPerGame >= 5.0)
+        .filter(p => this.playerId ? true : (p.astPlusTovPerGame >= 3.0 && p.fgaPerGame >= 5.0))
         .sort((a, b) => (b.ballSecurity || 0) - (a.ballSecurity || 0));
 
       this.players.forEach((p, i) => {
         this.playerColors.set(p.id, this.colorPalette[i % this.colorPalette.length]);
       });
 
-      this.activePlayerIds = new Set(this.players.slice(0, 4).map(p => p.id));
+      this.activePlayerIds = new Set(this.players.map(p => p.id));
 
       this.loading = false;
       this.cdr.detectChanges();
@@ -254,7 +264,6 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
     const xScale = (i: number) => margin.left + (i / Math.max(this.games.length - 1, 1)) * iw;
     const yScale = (v: number) => margin.top + ih - (v / maxY) * ih;
 
-    // grid
     ctx.strokeStyle = 'rgba(0,0,0,0.07)';
     ctx.lineWidth = 1;
     for (let t = 0; t <= maxY; t += 1) {
@@ -269,7 +278,6 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
       ctx.fillText(String(t), margin.left - 6, y + 4);
     }
 
-    // x labels
     const step = Math.ceil(this.games.length / 12);
     this.games.forEach((g, i) => {
       if (i % step !== 0) return;
@@ -312,7 +320,6 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
       });
     };
 
-    // league avg horizontal line
     if (this.showLeagueAvg && this.leagueAvgTovPerGame > 0) {
       const y = yScale(this.leagueAvgTovPerGame);
       ctx.save();
@@ -347,7 +354,9 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
         drawTrendLine(trendValues, color, false, 0.85, 2.5);
       }
 
-      drawDots(gameIdToIndex, player.games, color);
+      if (!this.chartOnly) {
+        drawDots(gameIdToIndex, player.games, color);
+      }
     });
   }
 }
