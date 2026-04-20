@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
+import { TurnoverTrackerComponent } from '../components/turnover-tracker/turnover-tracker';
 
 @Component({
   selector: 'app-team',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TurnoverTrackerComponent],
   templateUrl: './team.html',
   styleUrl: './team.scss',
 })

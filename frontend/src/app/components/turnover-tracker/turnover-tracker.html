@@ -1,0 +1,84 @@
+@if (loading) {
+    <p class="tt-loading">Loading...</p>
+  } @else {
+    <div class="tt-wrap">
+  
+      <div class="tt-controls">
+        <button
+          class="tt-btn"
+          [class.active]="showTeamTotal"
+          [style.border-color]="showTeamTotal ? '#555' : ''"
+          [style.color]="showTeamTotal ? '#555' : ''"
+          (click)="toggleTeamTotal()">
+          Team Total
+        </button>
+        <button
+          class="tt-btn"
+          [class.active]="showLeagueAvg"
+          style="border-color: #0d6efd; color: #0d6efd"
+          [style.background]="showLeagueAvg ? '#0d6efd' : ''"
+          [style.color]="showLeagueAvg ? '#fff' : '#0d6efd'"
+          (click)="toggleLeagueAvg()">
+          League Avg
+        </button>
+        @for (player of players; track player.id) {
+          <button
+            class="tt-btn"
+            [class.active]="activePlayerIds.has(player.id)"
+            [style.background]="activePlayerIds.has(player.id) ? getColor(player.id) : ''"
+            [style.border-color]="getColor(player.id)"
+            [style.color]="activePlayerIds.has(player.id) ? '#fff' : getColor(player.id)"
+            (click)="togglePlayer(player.id)">
+            {{ player.name.split(' ').slice(-1)[0] }}
+          </button>
+        }
+      </div>
+  
+      <div class="tt-chart-wrap">
+        <canvas #chartCanvas></canvas>
+      </div>
+  
+      <div class="tt-definitions">
+        <button class="tt-def-toggle" (click)="showDefinitions = !showDefinitions">
+          {{ showDefinitions ? '▲' : '▼' }} Metric definitions
+        </button>
+        @if (showDefinitions) {
+          <div class="tt-def-body">
+            <p><strong>TOV%</strong> — Turnover percentage. The fraction of a player's possessions that end in a turnover: TOV / (FGA + 0.44 × FTA + AST + TOV). Lower is better. League average this season: {{ leagueTovPct }}%.</p>
+            <p><strong>Ball Security Rating</strong> — Points created relative to turnovers: (PTS + AST × 2) / TOV. Higher is better. A player scoring 20 with 5 assists and 2 turnovers scores 15.0. A player with 4 points, 1 assist, and 3 turnovers scores 2.0.</p>
+            <p><strong>Usage proxy</strong> — Average possessions used per game (FGA + 0.44 × FTA + AST + TOV) / GP. Players below 3.0 are filtered out as low-usage.</p>
+            <p><strong>Chart</strong> — Shows 5-game rolling average TOV% for selected players. The blue dashed line is the league average TOV% for the season.</p>
+          </div>
+        }
+      </div>
+  
+      <div class="tt-table-wrap">
+        <table class="tt-table">
+          <thead>
+            <tr>
+              <th class="left" (click)="sortBy('name')" [class.sorted]="sortCol === 'name'">Player</th>
+              <th (click)="sortBy('gp')" [class.sorted]="sortCol === 'gp'">GP</th>
+              <th (click)="sortBy('totalTov')" [class.sorted]="sortCol === 'totalTov'">TOV</th>
+              <th (click)="sortBy('avgTovPct')" [class.sorted]="sortCol === 'avgTovPct'">TOV%</th>
+              <th (click)="sortBy('ballSecurity')" [class.sorted]="sortCol === 'ballSecurity'">Ball Security</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (player of sortedPlayers; track player.id) {
+              <tr (click)="togglePlayer(player.id)" style="cursor: pointer">
+                <td class="left">
+                  <span class="tt-swatch" [style.background]="getColor(player.id)"></span>
+                  {{ player.name }}
+                </td>
+                <td>{{ player.gp }}</td>
+                <td>{{ player.totalTov }}</td>
+                <td class="tov-cell" [style.color]="getColor(player.id)">{{ player.avgTovPct }}%</td>
+                <td class="bsr-cell">{{ player.ballSecurity !== null ? player.ballSecurity : '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+  
+    </div>
+  }
