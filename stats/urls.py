@@ -1,5 +1,10 @@
 from rest_framework.routers import DefaultRouter
-from .views import PlayByPlayViewSet, PlayerStatViewSet, PlayerSeasonStatsViewSet, PlayerGameLogViewSet
+from django.urls import path
+from .views import (
+    PlayByPlayViewSet, PlayerStatViewSet,
+    PlayerSeasonStatsViewSet, PlayerGameLogViewSet,
+    league_tov_avg
+)
 
 router = DefaultRouter()
 router.register(r'playbyplay', PlayByPlayViewSet)
@@ -7,4 +12,6 @@ router.register(r'playerstats', PlayerStatViewSet)
 router.register(r'player-season-stats', PlayerSeasonStatsViewSet, basename='player-season-stats')
 router.register(r'player-game-log', PlayerGameLogViewSet, basename='player-game-log')
 
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path('league-tov-avg/', league_tov_avg, name='league-tov-avg'),
+]
