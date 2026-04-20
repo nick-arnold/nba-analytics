@@ -28,7 +28,8 @@ class Command(BaseCommand):
         for season in seasons:
             self.stdout.write(f'\n--- Season {season} ---')
             cursor = None
-            total = 0
+            created_total = 0
+            updated_total = 0
 
             while True:
                 params = {'seasons[]': season, 'per_page': 100}
@@ -60,7 +61,7 @@ class Command(BaseCommand):
                     if not team:
                         continue
 
-                    _, created = PlayerStat.objects.get_or_create(
+                    _, created = PlayerStat.objects.update_or_create(
                         game=game,
                         player=player,
                         defaults={
@@ -88,13 +89,16 @@ class Command(BaseCommand):
                     )
 
                     if created:
-                        total += 1
+                        created_total += 1
+                    else:
+                        updated_total += 1
 
                 cursor = meta.get('next_cursor')
                 if not cursor:
                     break
                 time.sleep(0.1)
 
-            self.stdout.write(f'  Done — {total} stats created for {season}')
+            self.stdout.write(f'  Done — {created_total} created, {updated_total} updated for {season}')
 
         self.stdout.write('\nAll done.')
+        
