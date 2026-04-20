@@ -6,12 +6,13 @@ from games.models import Team, Game
 
 
 class Command(BaseCommand):
-    help = 'Seed games from BallDontLie API for seasons 2015-2024'
+    help = 'Seed games from BallDontLie API'
 
     def add_arguments(self, parser):
         parser.add_argument('--seasons', nargs='+', type=int)
         parser.add_argument('--start-season', type=int, default=2015)
         parser.add_argument('--end-season', type=int, default=2024)
+        parser.add_argument('--postseason', action='store_true', help='Fetch postseason games')
 
     def handle(self, *args, **options):
         api_key = settings.BALLDONTLIE_API_KEY
@@ -19,7 +20,10 @@ class Command(BaseCommand):
         base_url = 'https://api.balldontlie.io/v1/games'
 
         seasons = options['seasons'] or list(range(options['start_season'], options['end_season'] + 1))
-        self.stdout.write(f'Seeding seasons: {seasons}')
+        postseason = options['postseason']
+        game_type = 'playoff' if postseason else 'regular_season'
+
+        self.stdout.write(f'Seeding {"postseason" if postseason else "regular season"} games for seasons: {seasons}')
 
         for season in seasons:
             self.stdout.write(f'\n--- Season {season} ---')
@@ -28,6 +32,8 @@ class Command(BaseCommand):
 
             while True:
                 params = {'seasons[]': season, 'per_page': 100}
+                if postseason:
+                    params['postseason'] = 'true'
                 if cursor:
                     params['cursor'] = cursor
 
@@ -54,13 +60,14 @@ class Command(BaseCommand):
                         self.stdout.write(f'  Skipping: {home_abbr} vs {away_abbr}')
                         continue
 
-                    game, created = Game.objects.get_or_create(
+                    game, created = Game.objects.update_or_create(
                         nba_game_id=game_id,
                         defaults={
                             'home_team': home_team,
                             'away_team': away_team,
                             'game_date': game_date,
-                            'game_type': 'regular_season',
+                            'game_type': game_type,
+                            'postseason': postseason,
                             'season': f'{season}-{str(season+1)[-2:]}',
                             'home_score': home_score,
                             'away_score': away_score,
