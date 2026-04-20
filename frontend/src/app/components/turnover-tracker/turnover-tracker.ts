@@ -21,10 +21,12 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
   activePlayerIds: Set<number> = new Set();
   showTeamTotal = true;
   showLeagueAvg = true;
+  showTrendLines = true;
   leagueTovPct = 0;
+  leagueAvgTovPerGame = 0;
   sortCol = 'ballSecurity';
   sortDir = -1;
-  rollingWindow = 5;
+  rollingWindow = 10;
   minMinutes = 10;
   minUsageGames = 5;
   showDefinitions = false;
@@ -60,7 +62,8 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
 
   ballSecurityRating(pts: number, ast: number, tov: number): number | null {
     if (tov === 0) return null;
-    return +((pts + ast * 2) / tov).toFixed(1);
+    const raw = (pts + ast * 2) / tov;
+    return +Math.min(10, Math.max(1, raw / 2)).toFixed(1);
   }
 
   usageProxy(fga: number, fta: number, ast: number, tov: number, gp: number): number {
@@ -71,7 +74,7 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
     return values.map((_, i) => {
       const start = Math.max(0, i - window + 1);
       const slice = values.slice(start, i + 1);
-      return +(slice.reduce((a, b) => a + b, 0) / slice.length).toFixed(1);
+      return +(slice.reduce((a, b) => a + b, 0) / slice.length).toFixed(2);
     });
   }
 
@@ -83,6 +86,7 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
     }).subscribe((results: any) => {
       const rows: any[] = results.log.results || results.log;
       this.leagueTovPct = results.league.league_tov_pct;
+      this.leagueAvgTovPerGame = results.league.league_avg_tov_per_game;
 
       const gameMap = new Map<number, any>();
       const playerMap = new Map<number, any>();
@@ -126,30 +130,35 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
       });
 
       this.games = Array.from(gameMap.values())
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        .map(g => ({ ...g, tovPct: this.tovPct(g.tov, g.fga, g.fta, g.ast) }));
-
-      const teamRolling = this.rollingAvg(this.games.map(g => g.tovPct), this.rollingWindow);
-      this.games = this.games.map((g, i) => ({ ...g, rolling: teamRolling[i] }));
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
       this.players = Array.from(playerMap.values())
         .filter(p => p.gp >= this.minUsageGames)
         .map(p => {
           const sorted = p.games.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-          const tovPcts = sorted.map((g: any) => this.tovPct(g.tov, g.fga, g.fta, g.ast));
-          const rolling = this.rollingAvg(tovPcts, this.rollingWindow);
-          const avgTovPct = +(tovPcts.reduce((a: number, b: number) => a + b, 0) / tovPcts.length).toFixed(1);
+          const tovValues = sorted.map((g: any) => g.tov);
+          const rolling = this.rollingAvg(tovValues, this.rollingWindow);
+          const avgTov = +(p.totalTov / p.gp).toFixed(1);
+          const avgTovPct = +(sorted.map((g: any) => this.tovPct(g.tov, g.fga, g.fta, g.ast))
+            .reduce((a: number, b: number) => a + b, 0) / sorted.length).toFixed(1);
           const usage = this.usageProxy(p.totalFga, p.totalFta, p.totalAst, p.totalTov, p.gp);
+          const astPerGame = p.totalAst / p.gp;
+          const fgaPerGame = p.totalFga / p.gp;
+          const astPlusTovPerGame = (p.totalAst + p.totalTov) / p.gp;
           const bsr = this.ballSecurityRating(p.totalPts, p.totalAst, p.totalTov);
           return {
             ...p,
-            games: sorted.map((g: any, i: number) => ({ ...g, tovPct: tovPcts[i], rolling: rolling[i] })),
+            games: sorted.map((g: any, i: number) => ({ ...g, rolling: rolling[i] })),
+            avgTov,
             avgTovPct,
             usage,
+            astPerGame,
+            fgaPerGame,
+            astPlusTovPerGame,
             ballSecurity: bsr,
           };
         })
-        .filter(p => p.usage >= 3)
+        .filter(p => p.astPlusTovPerGame >= 3.0 && p.fgaPerGame >= 5.0)
         .sort((a, b) => (b.ballSecurity || 0) - (a.ballSecurity || 0));
 
       this.players.forEach((p, i) => {
@@ -188,6 +197,12 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
     this.drawChart();
   }
 
+  toggleTrendLines() {
+    this.showTrendLines = !this.showTrendLines;
+    this.drawChart();
+    this.cdr.detectChanges();
+  }
+
   sortBy(col: string) {
     if (this.sortCol === col) {
       this.sortDir *= -1;
@@ -204,7 +219,7 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
       if (va === null) return 1;
       if (vb === null) return -1;
       if (typeof va === 'string') return this.sortDir * va.localeCompare(vb);
-      return this.sortDir * (vb - va);
+      return this.sortDir * (va - vb);
     });
   }
 
@@ -222,7 +237,7 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
 
     const w = rect.width;
     const h = rect.height;
-    const margin = { top: 20, right: 80, bottom: 60, left: 40 };
+    const margin = { top: 20, right: 80, bottom: 60, left: 35 };
     const iw = w - margin.left - margin.right;
     const ih = h - margin.top - margin.bottom;
 
@@ -231,18 +246,18 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
 
     const activePlayers = this.players.filter(p => this.activePlayerIds.has(p.id));
     const allValues = [
-      ...(this.showTeamTotal ? this.games.map(g => g.rolling) : []),
-      ...activePlayers.flatMap(p => p.games.map((g: any) => g.rolling)),
-      this.leagueTovPct
+      ...activePlayers.flatMap(p => p.games.map((g: any) => g.tov)),
+      this.leagueAvgTovPerGame
     ];
-    const maxY = Math.max(...allValues, 20) + 5;
+    const maxY = Math.max(...allValues, 6) + 1;
 
     const xScale = (i: number) => margin.left + (i / Math.max(this.games.length - 1, 1)) * iw;
     const yScale = (v: number) => margin.top + ih - (v / maxY) * ih;
 
+    // grid
     ctx.strokeStyle = 'rgba(0,0,0,0.07)';
     ctx.lineWidth = 1;
-    for (let t = 0; t <= maxY; t += 5) {
+    for (let t = 0; t <= maxY; t += 1) {
       const y = yScale(t);
       ctx.beginPath();
       ctx.moveTo(margin.left, y);
@@ -251,9 +266,10 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
       ctx.fillStyle = '#adb5bd';
       ctx.font = '11px system-ui';
       ctx.textAlign = 'right';
-      ctx.fillText(t + '%', margin.left - 6, y + 4);
+      ctx.fillText(String(t), margin.left - 6, y + 4);
     }
 
+    // x labels
     const step = Math.ceil(this.games.length / 12);
     this.games.forEach((g, i) => {
       if (i % step !== 0) return;
@@ -263,26 +279,42 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
       ctx.fillText(g.date.slice(5), xScale(i), h - margin.bottom + 14);
     });
 
-    const drawLine = (points: number[], color: string, dashed = false, alpha = 1) => {
+    const drawTrendLine = (points: (number | null)[], color: string, dashed = false, alpha = 1, width = 2.5) => {
+      const valid = points.map((v, i) => v !== null ? { x: xScale(i), y: yScale(v as number) } : null).filter(Boolean) as { x: number; y: number }[];
+      if (valid.length < 2) return;
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.strokeStyle = color;
-      ctx.lineWidth = dashed ? 1.5 : 2;
+      ctx.lineWidth = width;
       ctx.setLineDash(dashed ? [6, 4] : []);
       ctx.beginPath();
-      points.forEach((v, i) => {
-        const x = xScale(i);
-        const y = yScale(v);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+      valid.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
       });
       ctx.stroke();
       ctx.restore();
     };
 
-    // league average horizontal line
-    if (this.showLeagueAvg && this.leagueTovPct > 0) {
-      const y = yScale(this.leagueTovPct);
+    const drawDots = (gameIdToIndex: Map<number, number>, playerGames: any[], color: string) => {
+      playerGames.forEach((g: any) => {
+        const idx = gameIdToIndex.get(g.gameId);
+        if (idx === undefined) return;
+        const x = xScale(idx);
+        const y = yScale(g.tov);
+        ctx.beginPath();
+        ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+    };
+
+    // league avg horizontal line
+    if (this.showLeagueAvg && this.leagueAvgTovPerGame > 0) {
+      const y = yScale(this.leagueAvgTovPerGame);
       ctx.save();
       ctx.strokeStyle = '#0d6efd';
       ctx.lineWidth = 1;
@@ -297,24 +329,25 @@ export class TurnoverTrackerComponent implements OnInit, OnChanges {
       ctx.font = '10px system-ui';
       ctx.textAlign = 'left';
       ctx.globalAlpha = 0.8;
-      ctx.fillText(`Lg avg ${this.leagueTovPct}%`, margin.left + iw + 4, y + 4);
+      ctx.fillText(`Lg avg ${this.leagueAvgTovPerGame}`, margin.left + iw + 4, y + 4);
       ctx.globalAlpha = 1;
     }
 
-    if (this.showTeamTotal) {
-      drawLine(this.games.map(g => g.rolling), '#555', true, 0.6);
-    }
+    const gameIdToIndex = new Map(this.games.map((g, i) => [g.id, i]));
 
     activePlayers.forEach(player => {
       const color = this.getColor(player.id);
-      const gameIdToIndex = new Map(this.games.map((g, i) => [g.id, i]));
-      const values: (number | null)[] = new Array(this.games.length).fill(null);
-      player.games.forEach((g: any) => {
-        const idx = gameIdToIndex.get(g.gameId);
-        if (idx !== undefined) values[idx] = g.rolling;
-      });
-      const validPoints = values.filter(v => v !== null) as number[];
-      if (validPoints.length > 0) drawLine(validPoints, color);
+
+      if (this.showTrendLines) {
+        const trendValues: (number | null)[] = new Array(this.games.length).fill(null);
+        player.games.forEach((g: any) => {
+          const idx = gameIdToIndex.get(g.gameId);
+          if (idx !== undefined) trendValues[idx] = g.rolling;
+        });
+        drawTrendLine(trendValues, color, false, 0.85, 2.5);
+      }
+
+      drawDots(gameIdToIndex, player.games, color);
     });
   }
 }

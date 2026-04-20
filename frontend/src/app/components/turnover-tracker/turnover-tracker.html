@@ -21,6 +21,12 @@
           (click)="toggleLeagueAvg()">
           League Avg
         </button>
+        <button
+        class="tt-btn"
+        [class.active]="showTrendLines"
+        (click)="toggleTrendLines()">
+        Trend Lines
+        </button>
         @for (player of players; track player.id) {
           <button
             class="tt-btn"
