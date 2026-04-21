@@ -13,6 +13,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost'])
 
+CSRF_TRUSTED_ORIGINS = ['https://hoopatlas.com', 'https://www.hoopatlas.com']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
