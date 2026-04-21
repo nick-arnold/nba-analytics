@@ -45,10 +45,10 @@ export class NavComponent {
 
   onSearch() { this.searchSubject.next(this.searchQuery); }
 
-  goToPlayer(playerId: number) {
+  goToPlayer(slug: string) {
     this.showResults = false;
     this.searchQuery = '';
-    this.router.navigate(['/player', playerId]);
+    this.router.navigate(['/player', slug]);
   }
 
   hideResults() { setTimeout(() => this.showResults = false, 200); }
