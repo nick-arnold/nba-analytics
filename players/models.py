@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 from games.models import Team
 
 
@@ -11,7 +12,6 @@ class Player(models.Model):
         ('F-C', 'Forward-Center'),
     ]
 
-    
     bdl_player_id = models.IntegerField(null=True, blank=True, unique=True)
     nba_player_id = models.CharField(max_length=50, null=True, blank=True)
     first_name = models.CharField(max_length=100)
@@ -19,6 +19,7 @@ class Player(models.Model):
     position = models.CharField(max_length=5, choices=POSITIONS, blank=True)
     team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='players')
     is_active = models.BooleanField(default=True)
+    slug = models.SlugField(max_length=200, unique=True, null=True, blank=True)
 
     class Meta:
         ordering = ['last_name', 'first_name']
@@ -29,3 +30,14 @@ class Player(models.Model):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(f"{self.first_name} {self.last_name}")
+            slug = base_slug
+            n = 1
+            while Player.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{n}"
+                n += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
