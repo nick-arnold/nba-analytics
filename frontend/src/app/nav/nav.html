@@ -21,8 +21,7 @@
         }
       </div>
       @if (auth.isLoggedIn()) {
-        <a class="btn btn-outline-light btn-sm me-2" [routerLink]="['/account']">Account</a>
-        <button class="btn btn-outline-light btn-sm" (click)="logout()">Sign out</button>
+        <button class="btn btn-outline-light btn-sm" (click)="goToAccount()">Account</button>
       } @else {
         <a class="btn btn-outline-light btn-sm" [routerLink]="['/login']">Sign in</a>
       }

@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth.service';
 import { Subject } from 'rxjs';
@@ -34,6 +34,7 @@ export class AccountComponent implements OnInit {
   constructor(
     private http: HttpClient,
     public auth: AuthService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -69,6 +70,13 @@ export class AccountComponent implements OnInit {
       );
       this.cdr.detectChanges();
     });
+  }
+
+  logout() {
+    const returnUrl = sessionStorage.getItem('preAccountUrl') || '/';
+    sessionStorage.removeItem('preAccountUrl');
+    this.auth.logout();
+    this.router.navigate([returnUrl]);
   }
 
   isTeamFavorited(teamId: number): boolean {

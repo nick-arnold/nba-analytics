@@ -53,5 +53,8 @@ export class NavComponent {
 
   hideResults() { setTimeout(() => this.showResults = false, 200); }
 
-  logout() { this.auth.logout(); }
+  goToAccount() {
+    sessionStorage.setItem('preAccountUrl', this.router.url);
+    this.router.navigate(['/account']);
+  }
 }

@@ -37,7 +37,6 @@ export class AuthService {
     this.refreshToken = null;
     this.currentUser.next(null);
     localStorage.removeItem('auth');
-    this.router.navigate(['/login']);
   }
 
   getAccessToken(): string | null {

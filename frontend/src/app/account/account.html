@@ -5,7 +5,10 @@
       <p class="loading">Loading...</p>
     } @else {
       <div class="account-header">
-        <h1>My Account</h1>
+        <div class="account-header-top">
+          <h1>My Account</h1>
+          <button class="signout-btn" (click)="logout()">Sign out</button>
+        </div>
         @if (user) {
           <p class="email">{{ user.email }}</p>
         }
