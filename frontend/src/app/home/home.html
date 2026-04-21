@@ -20,7 +20,7 @@
           <ul class="team-list">
             @for (team of west; track team.id) {
               <li>
-                <a [routerLink]="['/team', team.id]">{{ team.city }} {{ team.name }}</a>
+                <a [routerLink]="['/team', team.abbreviation.toLowerCase()]">{{ team.city }} {{ team.name }}</a>
               </li>
             }
           </ul>

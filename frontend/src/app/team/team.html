@@ -49,7 +49,7 @@
             @for (player of players; track player.id) {
               <tr>
                 <td class="left">
-                  <a [routerLink]="['/player', player.player]">{{ player.player_name }}</a>
+                    <a [routerLink]="['/player', player.player_slug]">{{ player.player_name }}</a>
                 </td>
                 <td>{{ player.gp }}</td>
                 <td>{{ player.ppg }}</td>
@@ -113,7 +113,7 @@
       </section>
       <section>
         <h2>Turnover Rate (%)</h2>
-        <app-turnover-tracker [teamId]="teamId" [season]="selectedSeason"></app-turnover-tracker>
-      </section>
+        <app-turnover-tracker [teamId]="teamNumericId" [season]="selectedSeason"></app-turnover-tracker>
+    </section>
     </div>
   }

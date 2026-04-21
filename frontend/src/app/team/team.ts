@@ -84,16 +84,17 @@ export class Team implements OnInit {
       this.team = data;
       this.teamNumericId = String(data.id);
       this.cdr.detectChanges();
+
+      this.http.get(`/api/stats/player-season-stats/?team=${this.teamNumericId}&limit=200`)
+        .subscribe((statsData: any) => {
+          const allSeasons = (statsData.results || statsData).map((s: any) => s.season);
+          this.availableSeasons = [...new Set(allSeasons) as Set<string>]
+            .sort((a, b) => b.localeCompare(a));
+          this.cdr.detectChanges();
+        });
+
       this.loadSeasonData(this.selectedSeason);
     });
-
-    this.http.get(`/api/stats/player-season-stats/?team=${this.teamId}&limit=200`)
-      .subscribe((data: any) => {
-        const allSeasons = (data.results || data).map((s: any) => s.season);
-        this.availableSeasons = [...new Set(allSeasons) as Set<string>]
-          .sort((a, b) => b.localeCompare(a));
-        this.cdr.detectChanges();
-      });
   }
 
   loadSeasonData(season: string) {
