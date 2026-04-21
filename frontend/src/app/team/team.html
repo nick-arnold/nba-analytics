@@ -86,7 +86,7 @@
           </thead>
           <tbody>
             @for (game of filteredGames; track game.id) {
-              @let isHome = game.home_team.id === +teamId;
+              @let isHome = game.home_team.id === +teamNumericId;
               @let teamScore = isHome ? game.home_score : game.away_score;
               @let oppScore = isHome ? game.away_score : game.home_score;
               @let win = teamScore !== null && teamScore > oppScore;

@@ -20,6 +20,7 @@ export class Team implements OnInit {
   availableSeasons: string[] = [];
   loading = true;
   public teamId: string = '';
+  public teamNumericId: string = '';
   selectedSeason: string = '';
   gameFilter: 'regular' | 'playoffs' | 'all' = 'regular';
 
@@ -42,30 +43,26 @@ export class Team implements OnInit {
   }
 
   get record(): { wins: number; losses: number } {
-    let wins = 0;
-    let losses = 0;
+    let wins = 0; let losses = 0;
     this.regularGames.forEach(game => {
-      const isHome = game.home_team.id === +this.teamId;
+      const isHome = game.home_team.id === +this.teamNumericId;
       const teamScore = isHome ? game.home_score : game.away_score;
       const oppScore = isHome ? game.away_score : game.home_score;
       if (teamScore !== null && oppScore !== null) {
-        if (teamScore > oppScore) wins++;
-        else losses++;
+        if (teamScore > oppScore) wins++; else losses++;
       }
     });
     return { wins, losses };
   }
 
   get playoffRecord(): { wins: number; losses: number } {
-    let wins = 0;
-    let losses = 0;
+    let wins = 0; let losses = 0;
     this.playoffGames.forEach(game => {
-      const isHome = game.home_team.id === +this.teamId;
+      const isHome = game.home_team.id === +this.teamNumericId;
       const teamScore = isHome ? game.home_score : game.away_score;
       const oppScore = isHome ? game.away_score : game.home_score;
       if (teamScore !== null && oppScore !== null) {
-        if (teamScore > oppScore) wins++;
-        else losses++;
+        if (teamScore > oppScore) wins++; else losses++;
       }
     });
     return { wins, losses };
@@ -85,7 +82,9 @@ export class Team implements OnInit {
 
     this.http.get(`/api/games/teams/${this.teamId}/`).subscribe((data: any) => {
       this.team = data;
+      this.teamNumericId = String(data.id);
       this.cdr.detectChanges();
+      this.loadSeasonData(this.selectedSeason);
     });
 
     this.http.get(`/api/stats/player-season-stats/?team=${this.teamId}&limit=200`)
@@ -95,20 +94,18 @@ export class Team implements OnInit {
           .sort((a, b) => b.localeCompare(a));
         this.cdr.detectChanges();
       });
-
-    this.loadSeason(this.selectedSeason);
   }
 
-  loadSeason(season: string) {
+  loadSeasonData(season: string) {
     this.selectedSeason = season;
     this.loading = true;
 
     forkJoin({
-      homeReg: this.http.get(`/api/games/games/?home_team=${this.teamId}&season=${season}&game_type=regular_season`),
-      awayReg: this.http.get(`/api/games/games/?away_team=${this.teamId}&season=${season}&game_type=regular_season`),
-      homePlay: this.http.get(`/api/games/games/?home_team=${this.teamId}&season=${season}&game_type=playoff`),
-      awayPlay: this.http.get(`/api/games/games/?away_team=${this.teamId}&season=${season}&game_type=playoff`),
-      roster: this.http.get(`/api/stats/player-season-stats/?team=${this.teamId}&season=${season}&limit=50`)
+      homeReg: this.http.get(`/api/games/games/?home_team=${this.teamNumericId}&season=${season}&game_type=regular_season`),
+      awayReg: this.http.get(`/api/games/games/?away_team=${this.teamNumericId}&season=${season}&game_type=regular_season`),
+      homePlay: this.http.get(`/api/games/games/?home_team=${this.teamNumericId}&season=${season}&game_type=playoff`),
+      awayPlay: this.http.get(`/api/games/games/?away_team=${this.teamNumericId}&season=${season}&game_type=playoff`),
+      roster: this.http.get(`/api/stats/player-season-stats/?team=${this.teamNumericId}&season=${season}&limit=50`)
     }).subscribe((results: any) => {
       this.regularGames = [
         ...(results.homeReg.results || results.homeReg),
@@ -132,7 +129,7 @@ export class Team implements OnInit {
 
   selectSeason(season: string) {
     this.router.navigate(['/team', this.teamId, season]);
-    this.loadSeason(season);
+    this.loadSeasonData(season);
   }
 
   setGameFilter(filter: 'regular' | 'playoffs' | 'all') {

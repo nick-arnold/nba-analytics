@@ -44,10 +44,9 @@ class PlayByPlaySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
-
 class PlayerSeasonStatsSerializer(serializers.ModelSerializer):
     player_name = serializers.SerializerMethodField()
+    player_slug = serializers.SerializerMethodField()
     team_abbreviation = serializers.SerializerMethodField()
 
     class Meta:
@@ -57,12 +56,16 @@ class PlayerSeasonStatsSerializer(serializers.ModelSerializer):
     def get_player_name(self, obj):
         return f"{obj.player.first_name} {obj.player.last_name}"
 
+    def get_player_slug(self, obj):
+        return obj.player.slug
+
     def get_team_abbreviation(self, obj):
         return obj.team.abbreviation
 
 
 class PlayerGameLogSerializer(serializers.ModelSerializer):
     player_name = serializers.SerializerMethodField()
+    player_slug = serializers.SerializerMethodField()
 
     class Meta:
         model = PlayerGameLog
@@ -70,3 +73,6 @@ class PlayerGameLogSerializer(serializers.ModelSerializer):
 
     def get_player_name(self, obj):
         return f"{obj.player.first_name} {obj.player.last_name}"
+
+    def get_player_slug(self, obj):
+        return obj.player.slug
