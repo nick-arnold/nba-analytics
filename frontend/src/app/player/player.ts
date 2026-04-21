@@ -16,6 +16,7 @@ export class Player implements OnInit {
   player: any = null;
   seasonStats: any[] = [];
   gameLog: any[] = [];
+  teams: Map<number, any> = new Map();
   loading = true;
   public playerId: string = '';
   selectedSeason: string = '2025-26';
@@ -33,6 +34,17 @@ export class Player implements OnInit {
     return this.gameLog.filter(g => g.season === this.selectedSeason);
   }
 
+  getOpponent(game: any): string {
+    const isHome = game.home_team_id === game.team;
+    const oppId = isHome ? game.away_team_id : game.home_team_id;
+    const opp = this.teams.get(oppId);
+    return opp ? `${opp.city} ${opp.name}` : 'opp';
+  }
+
+  getLocation(game: any): string {
+    return game.home_team_id === game.team ? 'vs' : '@';
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -47,13 +59,17 @@ export class Player implements OnInit {
     forkJoin({
       player: this.http.get(`/api/players/players/${this.playerId}/`),
       seasons: this.http.get(`/api/stats/player-season-stats/?player=${this.playerId}&limit=20`),
-      log: this.http.get(`/api/stats/player-game-log/?player=${this.playerId}&limit=2000`)
+      log: this.http.get(`/api/stats/player-game-log/?player=${this.playerId}&limit=2000`),
+      teams: this.http.get(`/api/games/teams/?limit=30`)
     }).subscribe((results: any) => {
       this.player = results.player;
       this.seasonStats = (results.seasons.results || results.seasons)
         .sort((a: any, b: any) => b.season.localeCompare(a.season));
       this.gameLog = (results.log.results || results.log)
         .sort((a: any, b: any) => new Date(b.game_date).getTime() - new Date(a.game_date).getTime());
+
+      const teamList = results.teams.results || results.teams;
+      teamList.forEach((t: any) => this.teams.set(t.id, t));
 
       if (seasonParam && this.seasonStats.find(s => s.season === seasonParam)) {
         this.selectedSeason = seasonParam;

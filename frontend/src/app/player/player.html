@@ -115,8 +115,8 @@
                 @let win = teamScore > oppScore;
                 <tr>
                   <td class="left muted">{{ game.game_date }}</td>
-                  <td class="left muted">{{ isHome ? 'vs' : '@' }}</td>
-                  <td class="left muted small">opp</td>
+                  <td class="left muted">{{ getLocation(game) }}</td>
+                  <td class="left">{{ getOpponent(game) }}</td>
                   <td>
                     <span [class]="win ? 'badge win' : 'badge loss'">
                       {{ win ? 'W' : 'L' }} {{ teamScore }}-{{ oppScore }}
