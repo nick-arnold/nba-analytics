@@ -9,17 +9,16 @@
   
       <div class="game-header">
         <div class="team-score away">
-          <a class="team-name" [routerLink]="['/team', game.away_team.abbreviation]">
-            {{ game.away_team.city }} {{ game.away_team.name }}
-          </a>
           <span class="score" [class.winner]="game.away_score > game.home_score">
             {{ game.away_score ?? '—' }}
           </span>
+          <a class="team-name" [routerLink]="['/team', game.away_team.abbreviation]">
+            {{ game.away_team.city }} {{ game.away_team.name }}
+          </a>
         </div>
         <div class="game-meta">
           <span class="game-date">{{ game.game_date }}</span>
-          <span class="at">@</span>
-          <span class="badge game-type">{{ gameTypeLabel(game.game_type) }}</span>
+          <span class="game-type-badge">{{ gameTypeLabel(game.game_type) }}</span>
           <span class="season muted">{{ game.season }}</span>
         </div>
         <div class="team-score home">
@@ -44,14 +43,25 @@
             { label: 'BLK',  away: awayTeamTotals.blk,     home: homeTeamTotals.blk,     isStr: false },
             { label: 'TOV',  away: awayTeamTotals.turnover,home: homeTeamTotals.turnover,isStr: false }
           ]; track stat.label) {
+            @let awayNum = stat.isStr ? +stat.away : stat.away;
+            @let homeNum = stat.isStr ? +stat.home : stat.home;
+            @let total = awayNum + homeNum;
+            @let awayPct = total > 0 ? (awayNum / total * 100) : 50;
+            @let homePct = total > 0 ? (homeNum / total * 100) : 50;
             <div class="stat-row">
-              <span class="stat-val away" [class.leader]="!stat.isStr && stat.away > stat.home">
-                {{ stat.away }}
-              </span>
+              <div class="stat-side away">
+                <span class="stat-val" [class.leader]="awayNum > homeNum">{{ stat.away }}</span>
+                <div class="bar-track away">
+                  <div class="bar away" [style.width.%]="awayPct"></div>
+                </div>
+              </div>
               <span class="stat-label">{{ stat.label }}</span>
-              <span class="stat-val home" [class.leader]="!stat.isStr && stat.home > stat.away">
-                {{ stat.home }}
-              </span>
+              <div class="stat-side home">
+                <div class="bar-track home">
+                  <div class="bar home" [style.width.%]="homePct"></div>
+                </div>
+                <span class="stat-val" [class.leader]="homeNum > awayNum">{{ stat.home }}</span>
+              </div>
             </div>
           }
         </div>
@@ -86,26 +96,26 @@
               </thead>
               <tbody>
                 @for (p of side.box; track p.player_id) {
-                    <tr [class.dnp-row]="isDnp(p)">
-                      <td class="left">
-                        <a [routerLink]="['/player', p.player_slug]">{{ p.player_name }}</a>
-                      </td>
-                      <td class="muted">{{ formatMinutes(p.minutes) }}</td>
-                      @if (isDnp(p)) {
-                        <td colspan="9" class="dnp muted">Did not play</td>
-                      } @else {
-                        <td>{{ p.pts ?? '—' }}</td>
-                        <td>{{ p.reb ?? '—' }}</td>
-                        <td>{{ p.ast ?? '—' }}</td>
-                        <td>{{ p.stl ?? '—' }}</td>
-                        <td>{{ p.blk ?? '—' }}</td>
-                        <td>{{ p.turnover ?? '—' }}</td>
-                        <td class="muted small">{{ p.fgm }}/{{ p.fga }}</td>
-                        <td class="muted small">{{ p.fg3m }}/{{ p.fg3a }}</td>
-                        <td class="muted small">{{ p.ftm }}/{{ p.fta }}</td>
-                      }
-                    </tr>
-                  }
+                  <tr [class.dnp-row]="isDnp(p)">
+                    <td class="left player-name">
+                      <a [routerLink]="['/player', p.player_slug]">{{ p.player_name }}</a>
+                    </td>
+                    <td class="muted">{{ formatMinutes(p.minutes) }}</td>
+                    @if (isDnp(p)) {
+                      <td colspan="9" class="dnp muted">Did not play</td>
+                    } @else {
+                      <td>{{ p.pts ?? '—' }}</td>
+                      <td>{{ p.reb ?? '—' }}</td>
+                      <td>{{ p.ast ?? '—' }}</td>
+                      <td>{{ p.stl ?? '—' }}</td>
+                      <td>{{ p.blk ?? '—' }}</td>
+                      <td>{{ p.turnover ?? '—' }}</td>
+                      <td class="muted small">{{ p.fgm }}/{{ p.fga }}</td>
+                      <td class="muted small">{{ p.fg3m }}/{{ p.fg3a }}</td>
+                      <td class="muted small">{{ p.ftm }}/{{ p.fta }}</td>
+                    }
+                  </tr>
+                }
                 @if (side.totals) {
                   <tr class="totals-row">
                     <td class="left">Totals</td>
