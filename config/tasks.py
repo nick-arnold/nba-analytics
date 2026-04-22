@@ -1,6 +1,6 @@
 from celery import shared_task
 from django.core.management import call_command
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def get_current_season_year():
@@ -21,4 +21,6 @@ def nightly_ingest():
     call_command('seed_bdl_games', seasons=[season], postseason=True)
     call_command('seed_bdl_stats', seasons=[season])
     call_command('seed_bdl_stats', seasons=[season], postseason=True)
+    call_command('seed_bdl_plays', season=season)
+    call_command('seed_bdl_plays', season=season, postseason=True)
     call_command('create_materialized_views', refresh_only=True)

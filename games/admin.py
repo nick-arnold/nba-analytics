@@ -3,9 +3,9 @@ from .models import Team, Game
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ['city', 'name', 'abbreviation', 'conference', 'division']
+    list_display = ['city', 'name', 'abbreviation', 'conference']
     search_fields = ['city', 'name', 'abbreviation']
-    list_filter = ['conference', 'division']
+    list_filter = ['conference']
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):

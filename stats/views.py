@@ -3,13 +3,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
-from django.db.models import Sum, Count, FloatField
-from django.db.models.functions import Cast
+from django.db.models import Sum, Count
 from .models import PlayByPlay, PlayerStat, PlayerSeasonStats, PlayerGameLog
 from .serializers import (
     PlayByPlaySerializer, PlayerStatSerializer,
     PlayerSeasonStatsSerializer, PlayerGameLogSerializer
 )
+from games.models import Game
 
 
 class PlayerStatViewSet(viewsets.ModelViewSet):
@@ -19,9 +19,13 @@ class PlayerStatViewSet(viewsets.ModelViewSet):
     filterset_fields = ['player', 'team', 'game__season', 'game__game_type']
 
 
-class PlayByPlayViewSet(viewsets.ModelViewSet):
-    queryset = PlayByPlay.objects.all()
+class PlayByPlayViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PlayByPlaySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['game', 'scoring_play', 'period']
+
+    def get_queryset(self):
+        return PlayByPlay.objects.select_related('team', 'game').all()
 
 
 class PlayerSeasonStatsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -41,6 +45,42 @@ class PlayerGameLogViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return PlayerGameLog.objects.select_related('player', 'team', 'game').all().order_by('game_date')
+
+
+@api_view(['GET'])
+def scoring_plays(request):
+    nba_game_id = request.query_params.get('game_id')
+    if not nba_game_id:
+        return Response({'error': 'game_id required'}, status=400)
+    try:
+        game = Game.objects.get(nba_game_id=nba_game_id)
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found'}, status=404)
+
+    plays = PlayByPlay.objects.filter(
+        game=game,
+        scoring_play=True
+    ).select_related('team').order_by('order')
+
+    data = [{
+        'order': p.order,
+        'period': p.period,
+        'clock': p.clock,
+        'event_type': p.event_type,
+        'description': p.description,
+        'team_abbreviation': p.team.abbreviation if p.team else None,
+        'home_score': p.home_score,
+        'away_score': p.away_score,
+        'score_value': p.score_value,
+        'wallclock': p.wallclock,
+    } for p in plays]
+
+    return Response({
+        'game_id': nba_game_id,
+        'home_team': game.home_team.abbreviation,
+        'away_team': game.away_team.abbreviation,
+        'plays': data,
+    })
 
 
 @api_view(['GET'])
