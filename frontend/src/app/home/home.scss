@@ -140,3 +140,23 @@
       &:hover { color: #0d6efd; }
     }
   }
+
+  .score-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
+  
+  .score-card-type {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #adb5bd;
+  }
+  
+  .score-card-location {
+    font-size: 10px;
+    color: #adb5bd;
+  }

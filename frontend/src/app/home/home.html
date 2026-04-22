@@ -15,6 +15,10 @@
                   @let homeWin = played && game.home_score > game.away_score;
                   <a class="score-card" [routerLink]="['/game', game.nba_game_id]"
                      [style.border-top-color]="teamColor(game.away_team.abbreviation)">
+                    <div class="score-card-meta">
+                      <span class="score-card-type">{{ game.game_type === 'playoff' ? 'Playoffs' : game.game_type === 'play_in' ? 'Play-In' : 'Regular Season' }}</span>
+                      <span class="score-card-location">@ {{ game.home_team.city }}</span>
+                    </div>
                     <div class="score-card-team">
                       <span class="score-card-name" [style.color]="teamColor(game.away_team.abbreviation)">
                         {{ game.away_team.abbreviation }}
@@ -53,6 +57,10 @@
                   @let homeWin = played && game.home_score > game.away_score;
                   <a class="score-card" [routerLink]="['/game', game.nba_game_id]"
                      [style.border-top-color]="teamColor(game.away_team.abbreviation)">
+                    <div class="score-card-meta">
+                      <span class="score-card-type">{{ game.game_type === 'playoff' ? 'Playoffs' : game.game_type === 'play_in' ? 'Play-In' : 'Regular Season' }}</span>
+                      <span class="score-card-location">@ {{ game.home_team.city }}</span>
+                    </div>
                     <div class="score-card-team">
                       <span class="score-card-name" [style.color]="teamColor(game.away_team.abbreviation)">
                         {{ game.away_team.abbreviation }}
