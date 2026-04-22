@@ -48,11 +48,14 @@
             @let diff = awayNum - homeNum;
             <div class="stat-row">
               <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
+              <span class="stat-label">{{ stat.label }}</span>
               <div class="bar-track">
                 <div class="bar-center-line"></div>
-                @if (diff > 0) {
+                @if (diff === 0) {
+                  <div class="bar-even">EVEN</div>
+                } @else if (diff > 0) {
                   <div class="bar-fill away" [style.width.%]="getBarPct(awayNum, homeNum, stat.max)"></div>
-                } @else if (diff < 0) {
+                } @else {
                   <div class="bar-fill home" [style.width.%]="getBarPct(awayNum, homeNum, stat.max)"></div>
                 }
               </div>
