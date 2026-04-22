@@ -86,22 +86,26 @@
               </thead>
               <tbody>
                 @for (p of side.box; track p.player_id) {
-                  <tr>
-                    <td class="left">
-                      <a [routerLink]="['/player', p.player_slug]">{{ p.player_name }}</a>
-                    </td>
-                    <td class="muted">{{ formatMinutes(p.minutes) }}</td>
-                    <td>{{ p.pts ?? '—' }}</td>
-                    <td>{{ p.reb ?? '—' }}</td>
-                    <td>{{ p.ast ?? '—' }}</td>
-                    <td>{{ p.stl ?? '—' }}</td>
-                    <td>{{ p.blk ?? '—' }}</td>
-                    <td>{{ p.turnover ?? '—' }}</td>
-                    <td class="muted small">{{ p.fgm }}/{{ p.fga }}</td>
-                    <td class="muted small">{{ p.fg3m }}/{{ p.fg3a }}</td>
-                    <td class="muted small">{{ p.ftm }}/{{ p.fta }}</td>
-                  </tr>
-                }
+                    <tr [class.dnp-row]="isDnp(p)">
+                      <td class="left">
+                        <a [routerLink]="['/player', p.player_slug]">{{ p.player_name }}</a>
+                      </td>
+                      <td class="muted">{{ formatMinutes(p.minutes) }}</td>
+                      @if (isDnp(p)) {
+                        <td colspan="9" class="dnp muted">Did not play</td>
+                      } @else {
+                        <td>{{ p.pts ?? '—' }}</td>
+                        <td>{{ p.reb ?? '—' }}</td>
+                        <td>{{ p.ast ?? '—' }}</td>
+                        <td>{{ p.stl ?? '—' }}</td>
+                        <td>{{ p.blk ?? '—' }}</td>
+                        <td>{{ p.turnover ?? '—' }}</td>
+                        <td class="muted small">{{ p.fgm }}/{{ p.fga }}</td>
+                        <td class="muted small">{{ p.fg3m }}/{{ p.fg3a }}</td>
+                        <td class="muted small">{{ p.ftm }}/{{ p.fta }}</td>
+                      }
+                    </tr>
+                  }
                 @if (side.totals) {
                   <tr class="totals-row">
                     <td class="left">Totals</td>

@@ -47,7 +47,8 @@ export class GameComponent implements OnInit {
 
   private calcTotals(boxScore: any[]) {
     if (!boxScore?.length) return null;
-    const t = boxScore.reduce((acc, p) => ({
+    const filtered = boxScore.filter(p => !this.isDnp(p));
+    const t = filtered.reduce((acc, p) => ({
       pts:      (acc.pts      ?? 0) + (p.pts      ?? 0),
       reb:      (acc.reb      ?? 0) + (p.reb      ?? 0),
       ast:      (acc.ast      ?? 0) + (p.ast      ?? 0),
@@ -80,14 +81,28 @@ export class GameComponent implements OnInit {
   }
 
   formatMinutes(raw: string | null): string {
-    if (!raw) return '—';
+    if (!raw) return 'DNP';
+    if (/^\d+$/.test(raw)) {
+      const mins = parseInt(raw, 10);
+      if (mins === 0) return 'DNP';
+      return `${mins}`;
+    }
     const match = raw.match(/PT(\d+)M([\d.]+)S/);
     if (match) {
-      const mins = match[1];
+      const mins = parseInt(match[1], 10);
+      if (mins === 0) return 'DNP';
       const secs = String(Math.round(parseFloat(match[2]))).padStart(2, '0');
       return `${mins}:${secs}`;
     }
     return raw;
+  }
+
+  isDnp(p: any): boolean {
+    if (!p.minutes) return true;
+    if (/^\d+$/.test(p.minutes)) return parseInt(p.minutes, 10) === 0;
+    const match = p.minutes.match(/PT(\d+)M/);
+    if (match) return parseInt(match[1], 10) === 0;
+    return false;
   }
 
   formatPct(val: number | null): string {
