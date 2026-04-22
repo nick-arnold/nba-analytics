@@ -105,6 +105,10 @@ export class GameComponent implements OnInit {
     return false;
   }
 
+  getBarPct(away: number, home: number, max: number): number {
+    return Math.min(Math.abs(away - home) / max * 50, 50);
+  }
+
   formatPct(val: number | null): string {
     if (val === null || val === undefined) return '—';
     return (val * 100).toFixed(1);

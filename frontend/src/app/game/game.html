@@ -34,41 +34,30 @@
       @if (awayTeamTotals && homeTeamTotals) {
         <div class="stat-comparison">
           @for (stat of [
-            { label: 'FG%',  away: awayTeamTotals.fg_pct,  home: homeTeamTotals.fg_pct,  isStr: true },
-            { label: '3P%',  away: awayTeamTotals.fg3_pct, home: homeTeamTotals.fg3_pct, isStr: true },
-            { label: 'FT%',  away: awayTeamTotals.ft_pct,  home: homeTeamTotals.ft_pct,  isStr: true },
-            { label: 'REB',  away: awayTeamTotals.reb,     home: homeTeamTotals.reb,     isStr: false },
-            { label: 'AST',  away: awayTeamTotals.ast,     home: homeTeamTotals.ast,     isStr: false },
-            { label: 'STL',  away: awayTeamTotals.stl,     home: homeTeamTotals.stl,     isStr: false },
-            { label: 'BLK',  away: awayTeamTotals.blk,     home: homeTeamTotals.blk,     isStr: false },
-            { label: 'TOV',  away: awayTeamTotals.turnover,home: homeTeamTotals.turnover,isStr: false }
+            { label: 'FG%',  away: awayTeamTotals.fg_pct,  home: homeTeamTotals.fg_pct,  isStr: true,  max: 30 },
+            { label: '3P%',  away: awayTeamTotals.fg3_pct, home: homeTeamTotals.fg3_pct, isStr: true,  max: 30 },
+            { label: 'FT%',  away: awayTeamTotals.ft_pct,  home: homeTeamTotals.ft_pct,  isStr: true,  max: 30 },
+            { label: 'REB',  away: awayTeamTotals.reb,     home: homeTeamTotals.reb,     isStr: false, max: 20 },
+            { label: 'AST',  away: awayTeamTotals.ast,     home: homeTeamTotals.ast,     isStr: false, max: 15 },
+            { label: 'STL',  away: awayTeamTotals.stl,     home: homeTeamTotals.stl,     isStr: false, max: 10 },
+            { label: 'BLK',  away: awayTeamTotals.blk,     home: homeTeamTotals.blk,     isStr: false, max: 10 },
+            { label: 'TOV',  away: awayTeamTotals.turnover,home: homeTeamTotals.turnover,isStr: false, max: 15 }
           ]; track stat.label) {
             @let awayNum = stat.isStr ? +stat.away : stat.away;
             @let homeNum = stat.isStr ? +stat.home : stat.home;
-            @let total = awayNum + homeNum;
-            @let awayWins = awayNum > homeNum;
-            @let homeWins = homeNum > awayNum;
-            @let barPct = total > 0 ? (awayWins ? ((awayNum - homeNum) / total * 50) : (homeNum - awayNum) / total * 50) : 0;
+            @let diff = awayNum - homeNum;
             <div class="stat-row">
-              <span class="stat-val away" [class.leader]="awayWins">{{ stat.away }}</span>
-              <div class="bar-center">
+              <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
+              <div class="bar-track">
                 <div class="bar-center-line"></div>
-                @if (awayWins) {
-                  <div class="bar-fill away" [style.width.%]="barPct"></div>
-                } @else if (homeWins) {
-                  <div class="bar-fill home" [style.width.%]="barPct"></div>
+                @if (diff > 0) {
+                  <div class="bar-fill away" [style.width.%]="getBarPct(awayNum, homeNum, stat.max)"></div>
+                } @else if (diff < 0) {
+                  <div class="bar-fill home" [style.width.%]="getBarPct(awayNum, homeNum, stat.max)"></div>
                 }
               </div>
               <span class="stat-label">{{ stat.label }}</span>
-              <div class="bar-center">
-                <div class="bar-center-line"></div>
-                @if (homeWins) {
-                  <div class="bar-fill home" [style.width.%]="barPct"></div>
-                } @else if (awayWins) {
-                  <div class="bar-fill away" [style.width.%]="barPct"></div>
-                }
-              </div>
-              <span class="stat-val home" [class.leader]="homeWins">{{ stat.home }}</span>
+              <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
             </div>
           }
         </div>
