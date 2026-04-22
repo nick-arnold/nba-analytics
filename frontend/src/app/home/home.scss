@@ -1,5 +1,5 @@
 .home {
-    max-width: 760px;
+    max-width: 680px;
     margin: 0 auto;
     padding: 2.5rem 1.25rem 4rem;
   }
@@ -18,7 +18,7 @@
   }
   
   .scores-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
   }
   
   .scores-label {
@@ -26,62 +26,64 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #adb5bd;
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
   }
   
-  .score-cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-  
-  .score-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.85rem 1rem;
+  .score-rows {
     border: 1px solid #dee2e6;
     border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .score-row {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr 2.5rem 1.5rem 2.5rem 1fr 2.5rem 5rem;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.6rem 1rem;
     text-decoration: none;
     color: inherit;
-    min-width: 130px;
-    transition: border-color 0.12s ease;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: background 0.1s ease;
   
-    &:hover { border-color: #adb5bd; }
+    &:last-child { border-bottom: none; }
+    &:hover { background: rgba(0,0,0,0.02); }
   }
   
-  .score-card-team {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-  }
-  
-  .score-card-name {
+  .sr-abbr {
     font-size: 13px;
     font-weight: 600;
     color: #212529;
   }
   
-  .score-card-score {
-    font-size: 18px;
+  .sr-name {
+    font-size: 13px;
+    color: #6c757d;
+  }
+  
+  .sr-score {
+    font-size: 15px;
     font-weight: 700;
     color: #adb5bd;
+    text-align: right;
   
     &.winner { color: #212529; }
   }
   
-  .score-card-divider {
-    height: 1px;
-    background: rgba(0,0,0,0.07);
+  .sr-at {
+    font-size: 11px;
+    color: #adb5bd;
+    text-align: center;
   }
   
-  .score-card-badge {
+  .sr-badge {
     font-size: 11px;
     font-weight: 500;
     padding: 2px 7px;
     border-radius: 4px;
     text-align: center;
+    justify-self: end;
   
     &.win {
       background: #d1fae5;
