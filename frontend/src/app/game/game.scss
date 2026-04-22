@@ -2,6 +2,10 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
+  
+    @media (max-width: 600px) {
+      padding: 1rem;
+    }
   }
   
   .back-link {
@@ -24,6 +28,13 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     background: var(--surface, rgba(0,0,0,0.02));
+  
+    @media (max-width: 600px) {
+      flex-direction: row;
+      gap: 0;
+      padding: 1.25rem 1rem;
+      justify-content: space-between;
+    }
   }
   
   .team-score {
@@ -31,7 +42,12 @@
     flex-direction: column;
     align-items: center;
     gap: 0.15rem;
-    min-width: 200px;
+    min-width: 160px;
+  
+    @media (max-width: 600px) {
+      min-width: 0;
+      flex: 1;
+    }
   }
   
   .score {
@@ -42,6 +58,10 @@
     letter-spacing: -2px;
   
     &.winner { color: var(--text); }
+  
+    @media (max-width: 600px) {
+      font-size: 2.5rem;
+    }
   }
   
   .team-name {
@@ -51,6 +71,10 @@
     color: var(--text-muted);
     text-align: center;
     &:hover { text-decoration: underline; }
+  
+    @media (max-width: 600px) {
+      font-size: 0.75rem;
+    }
   }
   
   .game-meta {
@@ -61,6 +85,11 @@
     font-size: 0.82rem;
     color: var(--text-muted);
     min-width: 110px;
+  
+    @media (max-width: 600px) {
+      font-size: 0.72rem;
+      min-width: 80px;
+    }
   }
   
   .game-type-badge {
@@ -77,19 +106,34 @@
   .stat-comparison {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.6rem;
     margin: 0 auto 2rem;
-    max-width: 600px;
+    max-width: 640px;
     padding: 1.25rem 1.5rem;
     border: 1px solid var(--border);
     border-radius: 12px;
+  
+    @media (max-width: 600px) {
+      max-width: 100%;
+      padding: 1rem;
+    }
   }
   
   .stat-row {
     display: grid;
-    grid-template-columns: 1fr 60px 1fr;
+    grid-template-columns: 2.5rem 1fr 4rem 1fr 2.5rem;
     align-items: center;
     gap: 0.5rem;
+  }
+  
+  .stat-val {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  
+    &.away { text-align: right; }
+    &.home { text-align: left; }
+    &.leader { color: var(--text); font-weight: 700; }
   }
   
   .stat-label {
@@ -100,53 +144,48 @@
     text-align: center;
   }
   
-  .stat-side {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  
-    &.away {
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    &.home {
-      flex-direction: row;
-      justify-content: flex-start;
-    }
-  }
-  
-  .stat-val {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    min-width: 2rem;
-    text-align: center;
-  
-    &.leader { color: var(--text); font-weight: 700; }
-  }
-  
   .bar-track {
-    flex: 1;
-    height: 6px;
-    background: rgba(0,0,0,0.08);
-    border-radius: 3px;
+    position: relative;
+    height: 8px;
+    background: rgba(0,0,0,0.07);
+    border-radius: 4px;
     overflow: hidden;
-    min-width: 60px;
+    grid-column: span 1;
   }
   
-  .bar {
+  .bar-center {
+    position: relative;
+    height: 8px;
+    background: rgba(0,0,0,0.07);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .bar-fill {
+    position: absolute;
+    top: 0;
     height: 100%;
-    border-radius: 3px;
+    border-radius: 4px;
     transition: width 0.4s ease;
   
     &.away {
-      float: right;
+      right: 50%;
       background: #4a90d9;
     }
     &.home {
-      float: left;
+      left: 50%;
       background: #e05a2b;
     }
+  }
+  
+  .bar-center-line {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    background: rgba(255,255,255,0.6);
+    z-index: 1;
   }
   
   .box-scores {

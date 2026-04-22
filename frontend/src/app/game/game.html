@@ -46,22 +46,29 @@
             @let awayNum = stat.isStr ? +stat.away : stat.away;
             @let homeNum = stat.isStr ? +stat.home : stat.home;
             @let total = awayNum + homeNum;
-            @let awayPct = total > 0 ? (awayNum / total * 100) : 50;
-            @let homePct = total > 0 ? (homeNum / total * 100) : 50;
+            @let awayWins = awayNum > homeNum;
+            @let homeWins = homeNum > awayNum;
+            @let barPct = total > 0 ? (awayWins ? ((awayNum - homeNum) / total * 50) : (homeNum - awayNum) / total * 50) : 0;
             <div class="stat-row">
-              <div class="stat-side away">
-                <span class="stat-val" [class.leader]="awayNum > homeNum">{{ stat.away }}</span>
-                <div class="bar-track away">
-                  <div class="bar away" [style.width.%]="awayPct"></div>
-                </div>
+              <span class="stat-val away" [class.leader]="awayWins">{{ stat.away }}</span>
+              <div class="bar-center">
+                <div class="bar-center-line"></div>
+                @if (awayWins) {
+                  <div class="bar-fill away" [style.width.%]="barPct"></div>
+                } @else if (homeWins) {
+                  <div class="bar-fill home" [style.width.%]="barPct"></div>
+                }
               </div>
               <span class="stat-label">{{ stat.label }}</span>
-              <div class="stat-side home">
-                <div class="bar-track home">
-                  <div class="bar home" [style.width.%]="homePct"></div>
-                </div>
-                <span class="stat-val" [class.leader]="homeNum > awayNum">{{ stat.home }}</span>
+              <div class="bar-center">
+                <div class="bar-center-line"></div>
+                @if (homeWins) {
+                  <div class="bar-fill home" [style.width.%]="barPct"></div>
+                } @else if (awayWins) {
+                  <div class="bar-fill away" [style.width.%]="barPct"></div>
+                }
               </div>
+              <span class="stat-val home" [class.leader]="homeWins">{{ stat.home }}</span>
             </div>
           }
         </div>
