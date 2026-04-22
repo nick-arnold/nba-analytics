@@ -107,7 +107,7 @@
     flex-direction: column;
     gap: 0.6rem;
     margin: 0 auto 2rem;
-    max-width: 680px;
+    max-width: 640px;
     padding: 1.25rem 1.5rem;
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -193,6 +193,32 @@
     padding: 0 0.3rem;
     white-space: nowrap;
     z-index: 2;
+  }
+  
+  .score-chart-section {
+    margin-bottom: 2rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+  }
+  
+  .chart-wrap {
+    position: relative;
+    height: 240px;
+  
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
   }
   
   .box-scores {

@@ -1,7 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-game',
@@ -11,9 +15,13 @@ import { HttpClient } from '@angular/common/http';
   styleUrl: './game.scss',
 })
 export class GameComponent implements OnInit {
+  @ViewChild('scoreChart') scoreChartRef!: ElementRef;
+
   game: any = null;
+  scoringPlays: any[] = [];
   loading = true;
   error = false;
+  chart: any = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -23,17 +31,168 @@ export class GameComponent implements OnInit {
 
   ngOnInit() {
     const nbaGameId = this.route.snapshot.paramMap.get('nbaGameId');
-    this.http.get(`/api/games/games/by-nba-id/${nbaGameId}/`).subscribe({
-      next: (data: any) => {
-        this.game = data;
+
+    forkJoin({
+      game: this.http.get(`/api/games/games/by-nba-id/${nbaGameId}/`),
+      plays: this.http.get(`/api/stats/scoring-plays/?game_id=${nbaGameId}`),
+    }).subscribe({
+      next: (results: any) => {
+        this.game = results.game;
+        this.scoringPlays = results.plays.plays || [];
         this.loading = false;
         this.cdr.detectChanges();
+        setTimeout(() => this.buildChart(), 50);
       },
       error: () => {
         this.error = true;
         this.loading = false;
         this.cdr.detectChanges();
       }
+    });
+  }
+
+  buildChart() {
+    if (!this.scoreChartRef || !this.scoringPlays.length) return;
+
+    const plays = this.scoringPlays;
+    const homeAbbr = this.game.home_team.abbreviation;
+    const awayAbbr = this.game.away_team.abbreviation;
+
+    // Build chart points — start at 0-0
+    const homePoints = [{ x: 0, y: 0, label: 'Tip off' }];
+    const awayPoints = [{ x: 0, y: 0, label: 'Tip off' }];
+
+    plays.forEach((p, i) => {
+      homePoints.push({ x: i + 1, y: p.home_score, label: p.description });
+      awayPoints.push({ x: i + 1, y: p.away_score, label: p.description });
+    });
+
+    // Quarter boundary indices
+    const quarterLines: number[] = [];
+    let lastPeriod = 1;
+    plays.forEach((p, i) => {
+      if (p.period !== lastPeriod) {
+        quarterLines.push(i + 1);
+        lastPeriod = p.period;
+      }
+    });
+
+    const quarterPlugin = {
+      id: 'quarterLines',
+      afterDraw: (chart: any) => {
+        const ctx = chart.ctx;
+        const xAxis = chart.scales.x;
+        const yAxis = chart.scales.y;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        quarterLines.forEach(idx => {
+          const x = xAxis.getPixelForValue(idx);
+          ctx.beginPath();
+          ctx.moveTo(x, yAxis.top);
+          ctx.lineTo(x, yAxis.bottom);
+          ctx.stroke();
+        });
+        ctx.restore();
+
+        // Quarter labels
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        const quarters = ['Q1', 'Q2', 'Q3', 'Q4', 'OT'];
+        const boundaries = [0, ...quarterLines, plays.length + 1];
+        boundaries.forEach((_, i) => {
+          if (i < boundaries.length - 1) {
+            const midX = (xAxis.getPixelForValue(boundaries[i]) + xAxis.getPixelForValue(boundaries[i + 1])) / 2;
+            ctx.fillText(quarters[i] || `OT${i - 3}`, midX, yAxis.top - 6);
+          }
+        });
+        ctx.restore();
+      }
+    };
+
+    if (this.chart) this.chart.destroy();
+
+    this.chart = new Chart(this.scoreChartRef.nativeElement, {
+      type: 'line',
+      data: {
+        labels: homePoints.map((_, i) => i),
+        datasets: [
+          {
+            label: awayAbbr,
+            data: awayPoints.map(p => p.y),
+            borderColor: '#4a90d9',
+            backgroundColor: 'rgba(74,144,217,0.08)',
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.1,
+            fill: false,
+          },
+          {
+            label: homeAbbr,
+            data: homePoints.map(p => p.y),
+            borderColor: '#e05a2b',
+            backgroundColor: 'rgba(224,90,43,0.08)',
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.1,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              font: { size: 12 },
+              usePointStyle: true,
+              pointStyleWidth: 10,
+            }
+          },
+          tooltip: {
+            callbacks: {
+              title: (items) => {
+                const idx = items[0].dataIndex;
+                if (idx === 0) return 'Tip off';
+                const play = plays[idx - 1];
+                return `Q${play.period} ${play.clock}`;
+              },
+              afterBody: (items) => {
+                const idx = items[0].dataIndex;
+                if (idx === 0) return [];
+                return [plays[idx - 1].description];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            display: false,
+          },
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.05)',
+            },
+            ticks: {
+              font: { size: 11 },
+            }
+          }
+        }
+      },
+      plugins: [quarterPlugin],
     });
   }
 

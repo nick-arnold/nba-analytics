@@ -66,6 +66,15 @@
         </div>
       }
   
+      @if (scoringPlays.length > 0) {
+        <div class="score-chart-section">
+          <h2 class="section-label">Score progression</h2>
+          <div class="chart-wrap">
+            <canvas #scoreChart></canvas>
+          </div>
+        </div>
+      }
+  
       <div class="box-scores">
         @for (side of [
           { team: game.away_team, box: game.away_box_score, totals: awayTeamTotals },
