@@ -35,11 +35,16 @@
                         {{ played ? game.home_score : '—' }}
                       </span>
                     </div>
-                    @if (!played) {
-                      <span class="score-card-status">Upcoming</span>
-                    } @else {
-                      <span class="score-card-status">Final</span>
-                    }
+                    <div class="score-card-footer">
+                      @if (!played) {
+                        <span class="score-card-status">Upcoming</span>
+                      } @else {
+                        <span class="score-card-status">Final · Won by {{ game.margin }}</span>
+                      }
+                      @if (game.series_record) {
+                        <span class="score-card-series">{{ game.series_record }}</span>
+                      }
+                    </div>
                   </a>
                 }
               </div>
@@ -76,7 +81,12 @@
                         {{ played ? game.home_score : '—' }}
                       </span>
                     </div>
-                    <span class="score-card-status">Final</span>
+                    <div class="score-card-footer">
+                      <span class="score-card-status">Final · Won by {{ game.margin }}</span>
+                      @if (game.series_record) {
+                        <span class="score-card-series">{{ game.series_record }}</span>
+                      }
+                    </div>
                   </a>
                 }
               </div>

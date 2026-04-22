@@ -54,6 +54,15 @@
     }
   }
   
+  .score-card-meta {
+    margin-bottom: 0.4rem;
+  }
+  
+  .score-card-location {
+    font-size: 10px;
+    color: #adb5bd;
+  }
+  
   .score-card-team {
     display: flex;
     align-items: center;
@@ -87,12 +96,25 @@
     margin: 0.1rem 0;
   }
   
+  .score-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 0.35rem;
+  }
+  
   .score-card-status {
     font-size: 10px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #adb5bd;
-    margin-top: 0.35rem;
+    text-align: right;
+  }
+  
+  .score-card-series {
+    font-size: 10px;
+    font-weight: 600;
+    color: #6c757d;
     text-align: right;
   }
   
@@ -139,24 +161,4 @@
   
       &:hover { color: #0d6efd; }
     }
-  }
-
-  .score-card-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.4rem;
-  }
-  
-  .score-card-type {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #adb5bd;
-  }
-  
-  .score-card-location {
-    font-size: 10px;
-    color: #adb5bd;
   }
