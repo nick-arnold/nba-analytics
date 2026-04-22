@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home';
 import { Team } from './team/team';
 import { Player } from './player/player';
+import { GameComponent } from './game/game';
 import { LoginComponent } from './login/login';
 import { AccountComponent } from './account/account';
 import { CvComponent } from './cv/cv';
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'team/:id/:season', component: Team },
   { path: 'player/:id', component: Player },
   { path: 'player/:id/:season', component: Player },
+  { path: 'game/:nbaGameId', component: GameComponent },
   { path: 'account', component: AccountComponent, canActivate: [authGuard] },
   { path: 'cv', component: CvComponent },
   { path: 'cv/thesis', component: ThesisComponent },

@@ -186,3 +186,8 @@
       color: #fff;
     }
   }
+
+  .clickable-row {
+    cursor: pointer;
+    &:hover td { background-color: var(--row-hover, rgba(0,0,0,0.04)); }
+  }

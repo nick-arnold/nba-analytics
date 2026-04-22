@@ -1,0 +1,115 @@
+.game-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  
+  .team-score {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  
+    &.away { align-items: flex-start; }
+    &.home { align-items: flex-end; }
+  }
+  
+  .team-name {
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: inherit;
+  
+    &:hover { text-decoration: underline; }
+  }
+  
+  .score {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-muted);
+  
+    &.winner { color: var(--text); }
+  }
+  
+  .game-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+  }
+  
+  .at {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+  }
+  
+  .stat-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    text-align: center;
+    min-width: 3rem;
+  }
+  
+  .stat-val {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  
+    &.away { text-align: right; }
+    &.home { text-align: left; }
+    &.leader { color: var(--text); font-weight: 700; }
+  }
+  
+  .box-scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .box-score {
+    h2 a {
+      text-decoration: none;
+      color: inherit;
+      &:hover { text-decoration: underline; }
+    }
+  }
+  
+  .totals-row td {
+    font-weight: 600;
+    border-top: 2px solid var(--border);
+  }
