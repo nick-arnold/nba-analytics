@@ -1,29 +1,13 @@
-.home {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 2.5rem 1.25rem 4rem;
-    text-align: center;
-  }
-  
-  .wordmark {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #6c757d;
+.scores-section {
     margin-bottom: 2.5rem;
+    text-align: left;
   }
   
-  .conferences {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 3rem;
-  
-    @media (max-width: 540px) {
-      grid-template-columns: 1fr;
-    }
+  .scores-group {
+    margin-bottom: 1.5rem;
   }
   
-  .conf-label {
+  .scores-label {
     font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -31,30 +15,72 @@
     margin: 0 0 0.75rem;
   }
   
-  .loading {
-    color: #adb5bd;
-    font-size: 14px;
+  .score-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
   
-  .team-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .score-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    min-width: 120px;
+    transition: border-color 0.12s ease;
   
-    li + li {
-      border-top: 1px solid rgba(0, 0, 0, 0.07);
+    &:hover { border-color: #adb5bd; }
+  }
+  
+  .score-card-team {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  
+  .score-card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #212529;
+  }
+  
+  .score-card-score {
+    font-size: 18px;
+    font-weight: 700;
+    color: #adb5bd;
+  
+    &.winner { color: #212529; }
+  }
+  
+  .score-card-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.07);
+  }
+  
+  .score-card-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-align: center;
+  
+    &.win {
+      background: #d1fae5;
+      color: #065f46;
     }
   
-    a {
-      display: block;
-      padding: 11px 0;
-      font-size: 15px;
-      color: #212529;
-      text-decoration: none;
-      transition: color 0.12s ease;
+    &.loss {
+      background: #fee2e2;
+      color: #991b1b;
+    }
   
-      &:hover {
-        color: #0d6efd;
-      }
+    &.upcoming {
+      background: #f1f3f5;
+      color: #adb5bd;
     }
   }

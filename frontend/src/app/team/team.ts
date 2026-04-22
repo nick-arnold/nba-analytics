@@ -42,6 +42,13 @@ export class Team implements OnInit {
     return this.regularGames;
   }
 
+  get lastGame(): any | null {
+    const played = [...this.regularGames, ...this.playoffGames]
+      .filter(g => g.home_score !== null && g.away_score !== null)
+      .sort((a, b) => new Date(b.game_date).getTime() - new Date(a.game_date).getTime());
+    return played[0] ?? null;
+  }
+
   get record(): { wins: number; losses: number } {
     let wins = 0; let losses = 0;
     this.regularGames.forEach(game => {

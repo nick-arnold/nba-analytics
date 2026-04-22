@@ -1,6 +1,78 @@
 <div class="home">
     <p class="wordmark">NBA Analytics</p>
   
+    <!-- Scores section -->
+    @if (!scoresLoading) {
+      @if (yesterdayGames.length > 0 || todayGames.length > 0) {
+        <div class="scores-section">
+  
+          @if (todayGames.length > 0) {
+            <div class="scores-group">
+              <p class="scores-label">Today</p>
+              <div class="score-cards">
+                @for (game of todayGames; track game.id) {
+                  <a class="score-card" [routerLink]="['/game', game.nba_game_id]">
+                    <div class="score-card-team">
+                      <span class="score-card-name">{{ game.away_team.abbreviation }}</span>
+                      <span class="score-card-score" [class.winner]="game.away_score > game.home_score">
+                        {{ game.away_score ?? '–' }}
+                      </span>
+                    </div>
+                    <div class="score-card-divider"></div>
+                    <div class="score-card-team">
+                      <span class="score-card-name">{{ game.home_team.abbreviation }}</span>
+                      <span class="score-card-score" [class.winner]="game.home_score > game.away_score">
+                        {{ game.home_score ?? '–' }}
+                      </span>
+                    </div>
+                    @if (game.home_score !== null && game.away_score !== null) {
+                      <span class="score-card-badge" [class.win]="game.away_score > game.home_score" [class.loss]="game.home_score > game.away_score">
+                        {{ game.away_score > game.home_score ? game.away_team.abbreviation : game.home_team.abbreviation }} win
+                      </span>
+                    } @else {
+                      <span class="score-card-badge upcoming">Upcoming</span>
+                    }
+                  </a>
+                }
+              </div>
+            </div>
+          }
+  
+          @if (yesterdayGames.length > 0) {
+            <div class="scores-group">
+              <p class="scores-label">Yesterday</p>
+              <div class="score-cards">
+                @for (game of yesterdayGames; track game.id) {
+                  <a class="score-card" [routerLink]="['/game', game.nba_game_id]">
+                    <div class="score-card-team">
+                      <span class="score-card-name">{{ game.away_team.abbreviation }}</span>
+                      <span class="score-card-score" [class.winner]="game.away_score > game.home_score">
+                        {{ game.away_score ?? '–' }}
+                      </span>
+                    </div>
+                    <div class="score-card-divider"></div>
+                    <div class="score-card-team">
+                      <span class="score-card-name">{{ game.home_team.abbreviation }}</span>
+                      <span class="score-card-score" [class.winner]="game.home_score > game.away_score">
+                        {{ game.home_score ?? '–' }}
+                      </span>
+                    </div>
+                    @if (game.home_score !== null && game.away_score !== null) {
+                      <span class="score-card-badge" [class.win]="game.away_score > game.home_score" [class.loss]="game.home_score > game.away_score">
+                        {{ game.away_score > game.home_score ? game.away_team.abbreviation : game.home_team.abbreviation }} win
+                      </span>
+                    }
+                  </a>
+                }
+              </div>
+            </div>
+          }
+  
+        </div>
+      }
+    }
+  
+    <!-- Teams section -->
     @if (loading) {
       <p class="loading">Loading...</p>
     } @else {

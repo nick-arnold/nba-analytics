@@ -191,3 +191,70 @@
     cursor: pointer;
     &:hover td { background-color: var(--row-hover, rgba(0,0,0,0.04)); }
   }
+  .team-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  
+    h1 { margin: 0; }
+  }
+  
+  .season-selector {
+    select {
+      padding: 5px 10px;
+      font-size: 13px;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      background: #fff;
+      color: #212529;
+      cursor: pointer;
+      outline: none;
+  
+      &:hover { border-color: #adb5bd; }
+      &:focus { border-color: #212529; }
+    }
+  }
+  
+  .last-game-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.12s ease;
+  
+    &:hover { border-color: #adb5bd; }
+  }
+  
+  .last-game-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #adb5bd;
+  }
+  
+  .last-game-body {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 14px;
+  }
+  
+  .last-game-opp {
+    font-weight: 500;
+    flex: 1;
+  }
+  
+  .last-game-score {
+    font-weight: 600;
+  }
+  
+  .last-game-date {
+    font-size: 13px;
+    color: #adb5bd;
+  }
