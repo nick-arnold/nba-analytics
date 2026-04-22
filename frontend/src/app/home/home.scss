@@ -41,13 +41,17 @@
     gap: 0;
     padding: 0.6rem 0.85rem;
     border: 1px solid #dee2e6;
+    border-top: 3px solid #dee2e6;
     border-radius: 8px;
     text-decoration: none;
     color: inherit;
-    min-width: 140px;
-    transition: border-color 0.12s ease;
+    min-width: 130px;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
   
-    &:hover { border-color: #adb5bd; }
+    &:hover {
+      border-color: #adb5bd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
   }
   
   .score-card-team {
@@ -59,19 +63,22 @@
   }
   
   .score-card-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: #212529;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
   }
   
   .score-card-score {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    color: #adb5bd;
+    color: #212529;
     min-width: 2rem;
     text-align: right;
   
-    &.winner { color: #212529; }
+    &.loser {
+      color: #adb5bd;
+      font-weight: 500;
+    }
   }
   
   .score-card-divider {
@@ -81,13 +88,12 @@
   }
   
   .score-card-status {
-    font-size: 11px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: #adb5bd;
     margin-top: 0.35rem;
     text-align: right;
-  
-    &.final { color: #adb5bd; }
-    &.upcoming { color: #adb5bd; }
   }
   
   .conferences {

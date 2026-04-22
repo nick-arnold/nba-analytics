@@ -13,20 +13,29 @@
                   @let played = game.home_score !== null && game.away_score !== null;
                   @let awayWin = played && game.away_score > game.home_score;
                   @let homeWin = played && game.home_score > game.away_score;
-                  <a class="score-card" [routerLink]="['/game', game.nba_game_id]">
+                  <a class="score-card" [routerLink]="['/game', game.nba_game_id]"
+                     [style.border-top-color]="teamColor(game.away_team.abbreviation)">
                     <div class="score-card-team">
-                      <span class="score-card-name">{{ game.away_team.abbreviation }}</span>
-                      <span class="score-card-score" [class.winner]="awayWin">{{ played ? game.away_score : '—' }}</span>
+                      <span class="score-card-name" [style.color]="teamColor(game.away_team.abbreviation)">
+                        {{ game.away_team.abbreviation }}
+                      </span>
+                      <span class="score-card-score" [class.winner]="awayWin" [class.loser]="played && !awayWin">
+                        {{ played ? game.away_score : '—' }}
+                      </span>
                     </div>
                     <div class="score-card-divider"></div>
                     <div class="score-card-team">
-                      <span class="score-card-name">{{ game.home_team.abbreviation }}</span>
-                      <span class="score-card-score" [class.winner]="homeWin">{{ played ? game.home_score : '—' }}</span>
+                      <span class="score-card-name" [style.color]="teamColor(game.home_team.abbreviation)">
+                        {{ game.home_team.abbreviation }}
+                      </span>
+                      <span class="score-card-score" [class.winner]="homeWin" [class.loser]="played && !homeWin">
+                        {{ played ? game.home_score : '—' }}
+                      </span>
                     </div>
                     @if (!played) {
-                      <span class="score-card-status upcoming">Upcoming</span>
+                      <span class="score-card-status">Upcoming</span>
                     } @else {
-                      <span class="score-card-status final">Final</span>
+                      <span class="score-card-status">Final</span>
                     }
                   </a>
                 }
@@ -42,17 +51,26 @@
                   @let played = game.home_score !== null && game.away_score !== null;
                   @let awayWin = played && game.away_score > game.home_score;
                   @let homeWin = played && game.home_score > game.away_score;
-                  <a class="score-card" [routerLink]="['/game', game.nba_game_id]">
+                  <a class="score-card" [routerLink]="['/game', game.nba_game_id]"
+                     [style.border-top-color]="teamColor(game.away_team.abbreviation)">
                     <div class="score-card-team">
-                      <span class="score-card-name">{{ game.away_team.abbreviation }}</span>
-                      <span class="score-card-score" [class.winner]="awayWin">{{ played ? game.away_score : '—' }}</span>
+                      <span class="score-card-name" [style.color]="teamColor(game.away_team.abbreviation)">
+                        {{ game.away_team.abbreviation }}
+                      </span>
+                      <span class="score-card-score" [class.winner]="awayWin" [class.loser]="played && !awayWin">
+                        {{ played ? game.away_score : '—' }}
+                      </span>
                     </div>
                     <div class="score-card-divider"></div>
                     <div class="score-card-team">
-                      <span class="score-card-name">{{ game.home_team.abbreviation }}</span>
-                      <span class="score-card-score" [class.winner]="homeWin">{{ played ? game.home_score : '—' }}</span>
+                      <span class="score-card-name" [style.color]="teamColor(game.home_team.abbreviation)">
+                        {{ game.home_team.abbreviation }}
+                      </span>
+                      <span class="score-card-score" [class.winner]="homeWin" [class.loser]="played && !homeWin">
+                        {{ played ? game.home_score : '—' }}
+                      </span>
                     </div>
-                    <span class="score-card-status final">Final</span>
+                    <span class="score-card-status">Final</span>
                   </a>
                 }
               </div>
