@@ -8,25 +8,25 @@
           @if (todayGames.length > 0) {
             <div class="scores-group">
               <p class="scores-label">Today</p>
-              <div class="score-rows">
+              <div class="score-cards">
                 @for (game of todayGames; track game.id) {
                   @let played = game.home_score !== null && game.away_score !== null;
                   @let awayWin = played && game.away_score > game.home_score;
                   @let homeWin = played && game.home_score > game.away_score;
-                  <a class="score-row" [routerLink]="['/game', game.nba_game_id]">
-                    <span class="sr-abbr">{{ game.away_team.abbreviation }}</span>
-                    <span class="sr-name">{{ game.away_team.city }}</span>
-                    <span class="sr-score" [class.winner]="awayWin">{{ played ? game.away_score : '—' }}</span>
-                    <span class="sr-at">@</span>
-                    <span class="sr-abbr">{{ game.home_team.abbreviation }}</span>
-                    <span class="sr-name">{{ game.home_team.city }}</span>
-                    <span class="sr-score" [class.winner]="homeWin">{{ played ? game.home_score : '—' }}</span>
+                  <a class="score-card" [routerLink]="['/game', game.nba_game_id]">
+                    <div class="score-card-team">
+                      <span class="score-card-name">{{ game.away_team.abbreviation }}</span>
+                      <span class="score-card-score" [class.winner]="awayWin">{{ played ? game.away_score : '—' }}</span>
+                    </div>
+                    <div class="score-card-divider"></div>
+                    <div class="score-card-team">
+                      <span class="score-card-name">{{ game.home_team.abbreviation }}</span>
+                      <span class="score-card-score" [class.winner]="homeWin">{{ played ? game.home_score : '—' }}</span>
+                    </div>
                     @if (!played) {
-                      <span class="sr-badge upcoming">Upcoming</span>
-                    } @else if (awayWin) {
-                      <span class="sr-badge win">{{ game.away_team.abbreviation }} win</span>
+                      <span class="score-card-status upcoming">Upcoming</span>
                     } @else {
-                      <span class="sr-badge win">{{ game.home_team.abbreviation }} win</span>
+                      <span class="score-card-status final">Final</span>
                     }
                   </a>
                 }
@@ -37,24 +37,22 @@
           @if (yesterdayGames.length > 0) {
             <div class="scores-group">
               <p class="scores-label">Yesterday</p>
-              <div class="score-rows">
+              <div class="score-cards">
                 @for (game of yesterdayGames; track game.id) {
                   @let played = game.home_score !== null && game.away_score !== null;
                   @let awayWin = played && game.away_score > game.home_score;
                   @let homeWin = played && game.home_score > game.away_score;
-                  <a class="score-row" [routerLink]="['/game', game.nba_game_id]">
-                    <span class="sr-abbr">{{ game.away_team.abbreviation }}</span>
-                    <span class="sr-name">{{ game.away_team.city }}</span>
-                    <span class="sr-score" [class.winner]="awayWin">{{ played ? game.away_score : '—' }}</span>
-                    <span class="sr-at">@</span>
-                    <span class="sr-abbr">{{ game.home_team.abbreviation }}</span>
-                    <span class="sr-name">{{ game.home_team.city }}</span>
-                    <span class="sr-score" [class.winner]="homeWin">{{ played ? game.home_score : '—' }}</span>
-                    @if (awayWin) {
-                      <span class="sr-badge win">{{ game.away_team.abbreviation }} win</span>
-                    } @else if (homeWin) {
-                      <span class="sr-badge win">{{ game.home_team.abbreviation }} win</span>
-                    }
+                  <a class="score-card" [routerLink]="['/game', game.nba_game_id]">
+                    <div class="score-card-team">
+                      <span class="score-card-name">{{ game.away_team.abbreviation }}</span>
+                      <span class="score-card-score" [class.winner]="awayWin">{{ played ? game.away_score : '—' }}</span>
+                    </div>
+                    <div class="score-card-divider"></div>
+                    <div class="score-card-team">
+                      <span class="score-card-name">{{ game.home_team.abbreviation }}</span>
+                      <span class="score-card-score" [class.winner]="homeWin">{{ played ? game.home_score : '—' }}</span>
+                    </div>
+                    <span class="score-card-status final">Final</span>
                   </a>
                 }
               </div>
