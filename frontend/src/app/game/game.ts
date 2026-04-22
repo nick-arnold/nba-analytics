@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -58,19 +58,12 @@ export class GameComponent implements OnInit {
     const homeAbbr = this.game.home_team.abbreviation;
     const awayAbbr = this.game.away_team.abbreviation;
 
-    // Build chart points — start at 0-0
-    const homePoints = [{ x: 0, y: 0, label: 'Tip off' }];
-    const awayPoints = [{ x: 0, y: 0, label: 'Tip off' }];
+    const homePoints = [0, ...plays.map((p: any) => p.home_score)];
+    const awayPoints = [0, ...plays.map((p: any) => p.away_score)];
 
-    plays.forEach((p, i) => {
-      homePoints.push({ x: i + 1, y: p.home_score, label: p.description });
-      awayPoints.push({ x: i + 1, y: p.away_score, label: p.description });
-    });
-
-    // Quarter boundary indices
     const quarterLines: number[] = [];
     let lastPeriod = 1;
-    plays.forEach((p, i) => {
+    plays.forEach((p: any, i: number) => {
       if (p.period !== lastPeriod) {
         quarterLines.push(i + 1);
         lastPeriod = p.period;
@@ -83,11 +76,12 @@ export class GameComponent implements OnInit {
         const ctx = chart.ctx;
         const xAxis = chart.scales.x;
         const yAxis = chart.scales.y;
+
         ctx.save();
         ctx.strokeStyle = 'rgba(0,0,0,0.1)';
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 4]);
-        quarterLines.forEach(idx => {
+        quarterLines.forEach((idx: number) => {
           const x = xAxis.getPixelForValue(idx);
           ctx.beginPath();
           ctx.moveTo(x, yAxis.top);
@@ -96,17 +90,16 @@ export class GameComponent implements OnInit {
         });
         ctx.restore();
 
-        // Quarter labels
         ctx.save();
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
         ctx.font = '10px sans-serif';
         ctx.textAlign = 'center';
-        const quarters = ['Q1', 'Q2', 'Q3', 'Q4', 'OT'];
+        const quarters = ['Q1', 'Q2', 'Q3', 'Q4', 'OT1', 'OT2', 'OT3'];
         const boundaries = [0, ...quarterLines, plays.length + 1];
-        boundaries.forEach((_, i) => {
+        boundaries.forEach((_: any, i: number) => {
           if (i < boundaries.length - 1) {
             const midX = (xAxis.getPixelForValue(boundaries[i]) + xAxis.getPixelForValue(boundaries[i + 1])) / 2;
-            ctx.fillText(quarters[i] || `OT${i - 3}`, midX, yAxis.top - 6);
+            ctx.fillText(quarters[i], midX, yAxis.top - 6);
           }
         });
         ctx.restore();
@@ -118,29 +111,27 @@ export class GameComponent implements OnInit {
     this.chart = new Chart(this.scoreChartRef.nativeElement, {
       type: 'line',
       data: {
-        labels: homePoints.map((_, i) => i),
+        labels: homePoints.map((_: any, i: number) => i),
         datasets: [
           {
             label: awayAbbr,
-            data: awayPoints.map(p => p.y),
+            data: awayPoints,
             borderColor: '#4a90d9',
-            backgroundColor: 'rgba(74,144,217,0.08)',
+            backgroundColor: 'transparent',
             borderWidth: 2,
             pointRadius: 0,
             pointHoverRadius: 4,
             tension: 0.1,
-            fill: false,
           },
           {
             label: homeAbbr,
-            data: homePoints.map(p => p.y),
+            data: homePoints,
             borderColor: '#e05a2b',
-            backgroundColor: 'rgba(224,90,43,0.08)',
+            backgroundColor: 'transparent',
             borderWidth: 2,
             pointRadius: 0,
             pointHoverRadius: 4,
             tension: 0.1,
-            fill: false,
           },
         ],
       },
@@ -158,18 +149,19 @@ export class GameComponent implements OnInit {
             labels: {
               font: { size: 12 },
               usePointStyle: true,
-              pointStyleWidth: 10,
+              pointStyle: 'line',
+              pointStyleWidth: 20,
             }
           },
           tooltip: {
             callbacks: {
-              title: (items) => {
+              title: (items: any) => {
                 const idx = items[0].dataIndex;
                 if (idx === 0) return 'Tip off';
                 const play = plays[idx - 1];
                 return `Q${play.period} ${play.clock}`;
               },
-              afterBody: (items) => {
+              afterBody: (items: any) => {
                 const idx = items[0].dataIndex;
                 if (idx === 0) return [];
                 return [plays[idx - 1].description];
