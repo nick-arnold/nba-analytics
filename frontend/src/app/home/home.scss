@@ -1,6 +1,20 @@
-.scores-section {
+.home {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+  }
+  
+  .wordmark {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6c757d;
     margin-bottom: 2.5rem;
-    text-align: left;
+    text-align: center;
+  }
+  
+  .scores-section {
+    margin-bottom: 2.5rem;
   }
   
   .scores-group {
@@ -30,7 +44,7 @@
     border-radius: 8px;
     text-decoration: none;
     color: inherit;
-    min-width: 120px;
+    min-width: 130px;
     transition: border-color 0.12s ease;
   
     &:hover { border-color: #adb5bd; }
@@ -40,7 +54,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 1.5rem;
   }
   
   .score-card-name {
@@ -82,5 +96,50 @@
     &.upcoming {
       background: #f1f3f5;
       color: #adb5bd;
+    }
+  }
+  
+  .conferences {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 3rem;
+    text-align: left;
+  
+    @media (max-width: 540px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .conf-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #adb5bd;
+    margin: 0 0 0.75rem;
+  }
+  
+  .loading {
+    color: #adb5bd;
+    font-size: 14px;
+  }
+  
+  .team-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  
+    li + li {
+      border-top: 1px solid rgba(0, 0, 0, 0.07);
+    }
+  
+    a {
+      display: block;
+      padding: 11px 0;
+      font-size: 15px;
+      color: #212529;
+      text-decoration: none;
+      transition: color 0.12s ease;
+  
+      &:hover { color: #0d6efd; }
     }
   }
