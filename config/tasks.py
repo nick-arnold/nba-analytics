@@ -53,6 +53,7 @@ def live_score_poll():
     )
     if live_game_ids:
         call_command('seed_bdl_stats', game_ids=live_game_ids)
-        call_command('seed_bdl_plays', game_ids=live_game_ids)
+        for game_id in live_game_ids:
+            call_command('seed_bdl_plays', game_id=game_id)
 
     return f'Polled {live_or_pending.count()} live/pending games'
