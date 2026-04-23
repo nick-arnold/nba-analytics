@@ -60,8 +60,8 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const today = this.formatDate(new Date());
-    const yesterday = this.formatDate(new Date(Date.now() - 86400000));
+    const today = this.getLocalDate(0);
+    const yesterday = this.getLocalDate(-1);
 
     this.teamsService.getTeams().subscribe((data: any) => {
       const teams = data.results || data;
@@ -82,14 +82,36 @@ export class HomeComponent implements OnInit {
       this.yesterdayGames = (results.yesterday.results || results.yesterday)
         .sort((a: any, b: any) => a.away_team.city.localeCompare(b.away_team.city));
       this.todayGames = (results.today.results || results.today)
-        .sort((a: any, b: any) => a.away_team.city.localeCompare(b.away_team.city));
+        .sort((a: any, b: any) => {
+          // Sort by tip-off time, then alphabetically
+          if (a.game_datetime && b.game_datetime) {
+            return new Date(a.game_datetime).getTime() - new Date(b.game_datetime).getTime();
+          }
+          return a.away_team.city.localeCompare(b.away_team.city);
+        });
       this.scoresLoading = false;
       this.cdr.detectChanges();
     });
   }
 
-  formatDate(d: Date): string {
-    return d.toISOString().split('T')[0];
+  getLocalDate(offsetDays: number = 0): string {
+    const d = new Date();
+    d.setDate(d.getDate() + offsetDays);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  formatTipoff(datetime: string | null): string {
+    if (!datetime) return '';
+    const d = new Date(datetime);
+    return d.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+      hour12: true,
+    });
   }
 
   teamColor(abbr: string): string {

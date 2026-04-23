@@ -28,6 +28,8 @@ class Game(models.Model):
     home_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='home_games')
     away_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='away_games')
     game_date = models.DateField()
+    game_datetime = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, null=True, blank=True)
     game_type = models.CharField(max_length=20, choices=GAME_TYPES, default='regular_season')
     season = models.CharField(max_length=10)
     home_score = models.IntegerField(null=True, blank=True)

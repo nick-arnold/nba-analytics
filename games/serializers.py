@@ -98,7 +98,8 @@ class GameDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = [
-            'id', 'nba_game_id', 'game_date', 'season', 'game_type', 'postseason',
+            'id', 'nba_game_id', 'game_date', 'game_datetime', 'status',
+            'season', 'game_type', 'postseason',
             'home_team', 'away_team', 'home_score', 'away_score',
             'home_box_score', 'away_box_score',
         ]

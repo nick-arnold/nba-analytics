@@ -2,6 +2,7 @@ import time
 import requests
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.utils.dateparse import parse_datetime
 from games.models import Team, Game
 
 
@@ -52,6 +53,8 @@ class Command(BaseCommand):
                     game_date = g['date']
                     home_score = int(g['home_team_score']) if g['home_team_score'] else None
                     away_score = int(g['visitor_team_score']) if g['visitor_team_score'] else None
+                    game_datetime = parse_datetime(g['datetime']) if g.get('datetime') else None
+                    status = g.get('status', None)
 
                     home_team = Team.objects.filter(abbreviation=home_abbr).first()
                     away_team = Team.objects.filter(abbreviation=away_abbr).first()
@@ -66,6 +69,8 @@ class Command(BaseCommand):
                             'home_team': home_team,
                             'away_team': away_team,
                             'game_date': game_date,
+                            'game_datetime': game_datetime,
+                            'status': status,
                             'game_type': game_type,
                             'postseason': postseason,
                             'season': f'{season}-{str(season+1)[-2:]}',
