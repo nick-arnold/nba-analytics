@@ -1,12 +1,12 @@
-<nav class="navbar bg-white border-bottom">
+<nav class="navbar" style="background: #2C2C2A; border-bottom: 1px solid rgba(255,255,255,0.08);">
   <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center gap-2" [routerLink]="['/']">
           <img 
               src="https://hoopatlas.sfo3.cdn.digitaloceanspaces.com/static/hoopatlas-globeonly-transparentbg.png"
-              alt="Hoop Atlas"
+              alt="HoopAtlas"
               style="height: 40px; width: auto;"
           />
-          <span style="font-weight: 600; font-size: 1.1rem; color: #212529;">Hoop Atlas</span>
+          <span style="font-weight: 600; font-size: 1.1rem; color: #fff;">HoopAtlas</span>
       </a>
     <div class="position-relative">
       <input
@@ -16,6 +16,7 @@
         [(ngModel)]="searchQuery"
         (input)="onSearch()"
         (blur)="hideResults()"
+        style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); color: #fff;"
       />
       @if (showResults) {
         <div class="dropdown-menu show position-absolute w-100">
@@ -28,9 +29,9 @@
       }
     </div>
     @if (auth.isLoggedIn()) {
-      <button class="btn btn-outline-dark btn-sm" (click)="goToAccount()">Account</button>
+      <button class="btn btn-sm" style="color: #fff; border: 1px solid rgba(255,255,255,0.4);" (click)="goToAccount()">Account</button>
     } @else {
-      <a class="btn btn-outline-dark btn-sm" [routerLink]="['/login']">Sign in</a>
+      <a class="btn btn-sm" style="color: #fff; border: 1px solid rgba(255,255,255,0.4);" [routerLink]="['/login']">Sign in</a>
     }
   </div>
 </nav>
