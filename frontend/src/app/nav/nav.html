@@ -1,35 +1,35 @@
 <nav class="navbar navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" [routerLink]="['/']">
-            <img 
-                src="https://hoopatlas.sfo3.cdn.digitaloceanspaces.com/static/hoopatlas-logo-2.png"
-                alt="Hoop Atlas"
-                style="height: 36px; width: auto;"
-            /> Hoop Atlas
-        </a>
-      <div class="position-relative">
-        <input
-          class="form-control"
-          type="search"
-          placeholder="Search players..."
-          [(ngModel)]="searchQuery"
-          (input)="onSearch()"
-          (blur)="hideResults()"
-        />
-        @if (showResults) {
-          <div class="dropdown-menu show position-absolute w-100">
-            @for (player of searchResults; track player.id) {
-              <button class="dropdown-item" (click)="goToPlayer(player.slug)">
-                {{ player.first_name }} {{ player.last_name }}
-              </button>
-            }
-          </div>
-        }
-      </div>
-      @if (auth.isLoggedIn()) {
-        <button class="btn btn-outline-light btn-sm" (click)="goToAccount()">Account</button>
-      } @else {
-        <a class="btn btn-outline-light btn-sm" [routerLink]="['/login']">Sign in</a>
+  <div class="container-fluid">
+      <a class="navbar-brand" [routerLink]="['/']">
+          <img 
+              src="https://hoopatlas.sfo3.cdn.digitaloceanspaces.com/static/hoopatlas_logo-transparentbg.png"
+              alt="Hoop Atlas"
+              style="height: 36px; width: auto;"
+          />
+      </a>
+    <div class="position-relative">
+      <input
+        class="form-control"
+        type="search"
+        placeholder="Search players..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+        (blur)="hideResults()"
+      />
+      @if (showResults) {
+        <div class="dropdown-menu show position-absolute w-100">
+          @for (player of searchResults; track player.id) {
+            <button class="dropdown-item" (click)="goToPlayer(player.slug)">
+              {{ player.first_name }} {{ player.last_name }}
+            </button>
+          }
+        </div>
       }
     </div>
-  </nav>
+    @if (auth.isLoggedIn()) {
+      <button class="btn btn-outline-light btn-sm" (click)="goToAccount()">Account</button>
+    } @else {
+      <a class="btn btn-outline-light btn-sm" [routerLink]="['/login']">Sign in</a>
+    }
+  </div>
+</nav>
