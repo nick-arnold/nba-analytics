@@ -42,7 +42,17 @@ def live_score_poll():
         return 'No live or pending games, skipping'
 
     season = get_current_season_year()
+
+    # Update scores and status
     call_command('seed_bdl_games', seasons=[season])
     call_command('seed_bdl_games', seasons=[season], postseason=True)
+
+    # Update live box scores for in-progress games only
+    live_game_ids = list(
+        live_or_pending.exclude(home_score=None).values_list('nba_game_id', flat=True)
+    )
+    if live_game_ids:
+        call_command('seed_bdl_stats', game_ids=live_game_ids)
+        call_command('seed_bdl_plays', game_ids=live_game_ids)
 
     return f'Polled {live_or_pending.count()} live/pending games'
