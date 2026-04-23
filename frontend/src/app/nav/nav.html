@@ -1,11 +1,12 @@
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar bg-white border-bottom">
   <div class="container-fluid">
-      <a class="navbar-brand" [routerLink]="['/']">
+      <a class="navbar-brand d-flex align-items-center gap-2" [routerLink]="['/']">
           <img 
-              src="https://hoopatlas.sfo3.cdn.digitaloceanspaces.com/static/hoopatlas_logo-transparentbg.png"
+              src="https://hoopatlas.sfo3.cdn.digitaloceanspaces.com/static/hoopatlas-globeonly-transparentbg.png"
               alt="Hoop Atlas"
-              style="height: 36px; width: auto;"
+              style="height: 40px; width: auto;"
           />
+          <span style="font-weight: 600; font-size: 1.1rem; color: #212529;">Hoop Atlas</span>
       </a>
     <div class="position-relative">
       <input
@@ -27,9 +28,9 @@
       }
     </div>
     @if (auth.isLoggedIn()) {
-      <button class="btn btn-outline-light btn-sm" (click)="goToAccount()">Account</button>
+      <button class="btn btn-outline-dark btn-sm" (click)="goToAccount()">Account</button>
     } @else {
-      <a class="btn btn-outline-light btn-sm" [routerLink]="['/login']">Sign in</a>
+      <a class="btn btn-outline-dark btn-sm" [routerLink]="['/login']">Sign in</a>
     }
   </div>
 </nav>
