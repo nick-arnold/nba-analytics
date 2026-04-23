@@ -51,16 +51,25 @@ export class GameComponent implements OnInit {
     });
   }
 
+  get isLive(): boolean {
+    if (!this.game?.status) return false;
+    if (this.game.status === 'Final') return false;
+    if (this.game.status.includes('T') && this.game.status.includes('Z')) return false;
+    return true;
+  }
+
   buildChart() {
     if (!this.scoreChartRef || !this.scoringPlays.length) return;
 
     const plays = this.scoringPlays;
     const homeAbbr = this.game.home_team.abbreviation;
     const awayAbbr = this.game.away_team.abbreviation;
+    const isLive = this.isLive;
 
     const homePoints = [0, ...plays.map((p: any) => p.home_score)];
     const awayPoints = [0, ...plays.map((p: any) => p.away_score)];
 
+    // Find quarter boundaries from actual data only
     const quarterLines: number[] = [];
     let lastPeriod = 1;
     plays.forEach((p: any, i: number) => {
@@ -70,6 +79,9 @@ export class GameComponent implements OnInit {
       }
     });
 
+    // Get unique periods actually present in the data
+    const periodsPresent = [...new Set(plays.map((p: any) => p.period))].sort();
+
     const quarterPlugin = {
       id: 'quarterLines',
       afterDraw: (chart: any) => {
@@ -77,6 +89,7 @@ export class GameComponent implements OnInit {
         const xAxis = chart.scales.x;
         const yAxis = chart.scales.y;
 
+        // Draw vertical dividers only between completed periods
         ctx.save();
         ctx.strokeStyle = 'rgba(0,0,0,0.1)';
         ctx.lineWidth = 1;
@@ -90,17 +103,23 @@ export class GameComponent implements OnInit {
         });
         ctx.restore();
 
+        // Draw period labels only for periods present in the data
         ctx.save();
         ctx.fillStyle = 'rgba(0,0,0,0.25)';
         ctx.font = '10px sans-serif';
         ctx.textAlign = 'center';
-        const quarters = ['Q1', 'Q2', 'Q3', 'Q4', 'OT1', 'OT2', 'OT3'];
+
         const boundaries = [0, ...quarterLines, plays.length + 1];
-        boundaries.forEach((_: any, i: number) => {
-          if (i < boundaries.length - 1) {
-            const midX = (xAxis.getPixelForValue(boundaries[i]) + xAxis.getPixelForValue(boundaries[i + 1])) / 2;
-            ctx.fillText(quarters[i], midX, yAxis.top - 6);
-          }
+        periodsPresent.forEach((period: number, i: number) => {
+          const label = period <= 4 ? `Q${period}` : `OT${period - 4}`;
+          const displayLabel = isLive && i === periodsPresent.length - 1
+            ? `${label} ●`
+            : label;
+          const midX = (xAxis.getPixelForValue(boundaries[i]) + xAxis.getPixelForValue(boundaries[i + 1])) / 2;
+          ctx.fillStyle = isLive && i === periodsPresent.length - 1
+            ? 'rgba(34,197,94,0.7)'
+            : 'rgba(0,0,0,0.25)';
+          ctx.fillText(displayLabel, midX, yAxis.top - 6);
         });
         ctx.restore();
       }
@@ -159,7 +178,8 @@ export class GameComponent implements OnInit {
                 const idx = items[0].dataIndex;
                 if (idx === 0) return 'Tip off';
                 const play = plays[idx - 1];
-                return `Q${play.period} ${play.clock}`;
+                const period = play.period <= 4 ? `Q${play.period}` : `OT${play.period - 4}`;
+                return `${period} ${this.formatClock(play.clock)}`;
               },
               afterBody: (items: any) => {
                 const idx = items[0].dataIndex;
@@ -186,6 +206,15 @@ export class GameComponent implements OnInit {
       },
       plugins: [quarterPlugin],
     });
+  }
+
+  formatClock(clock: string): string {
+    if (!clock) return '';
+    if (clock.includes(':')) return clock;
+    const secs = Math.floor(parseFloat(clock));
+    const m = Math.floor(secs / 60);
+    const s = String(secs % 60).padStart(2, '0');
+    return `${m}:${s}`;
   }
 
   get homeTeamTotals() {
