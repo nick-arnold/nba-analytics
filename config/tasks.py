@@ -1,6 +1,6 @@
 from celery import shared_task
 from django.core.management import call_command
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta, timezone
 
 
 def get_current_season_year():
@@ -16,7 +16,6 @@ def get_current_season_year():
 @shared_task
 def nightly_ingest():
     season = get_current_season_year()
-
     call_command('seed_bdl_games', seasons=[season])
     call_command('seed_bdl_games', seasons=[season], postseason=True)
     call_command('seed_bdl_stats', seasons=[season])
@@ -24,3 +23,26 @@ def nightly_ingest():
     call_command('seed_bdl_plays', season=season)
     call_command('seed_bdl_plays', season=season, postseason=True)
     call_command('create_materialized_views', refresh_only=True)
+
+
+@shared_task
+def live_score_poll():
+    from games.models import Game
+
+    now = datetime.now(timezone.utc)
+    today = date.today()
+    yesterday = today - timedelta(days=1)
+
+    live_or_pending = Game.objects.filter(
+        game_date__in=[today, yesterday],
+        game_datetime__lte=now,
+    ).exclude(status='Final')
+
+    if not live_or_pending.exists():
+        return 'No live or pending games, skipping'
+
+    season = get_current_season_year()
+    call_command('seed_bdl_games', seasons=[season])
+    call_command('seed_bdl_games', seasons=[season], postseason=True)
+
+    return f'Polled {live_or_pending.count()} live/pending games'
