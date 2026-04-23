@@ -3,9 +3,9 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, NavigationStart } from '@angular/router';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, filter } from 'rxjs/operators';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -40,6 +40,15 @@ export class NavComponent {
     ).subscribe((data: any) => {
       this.searchResults = data.results || data;
       this.showResults = this.searchResults.length > 0;
+    });
+
+    // Clear search on any navigation
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationStart)
+    ).subscribe(() => {
+      this.searchQuery = '';
+      this.searchResults = [];
+      this.showResults = false;
     });
   }
 
