@@ -117,12 +117,6 @@ export class GameComponent implements OnInit {
 
     if (this.chart) this.chart.destroy();
 
-    // Get the container width and constrain the canvas
-    const container = this.scoreChartRef.nativeElement.parentElement;
-    const maxWidth = 576;
-    const containerWidth = Math.min(container?.offsetWidth || maxWidth, maxWidth);
-    this.scoreChartRef.nativeElement.style.width = containerWidth + 'px';
-
     this.chart = new Chart(this.scoreChartRef.nativeElement, {
       type: 'line',
       data: {
@@ -151,7 +145,7 @@ export class GameComponent implements OnInit {
         ],
       },
       options: {
-        responsive: false,
+        responsive: true,
         maintainAspectRatio: false,
         interaction: {
           mode: 'index',
