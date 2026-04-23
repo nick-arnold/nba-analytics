@@ -162,3 +162,30 @@
       &:hover { color: #0d6efd; }
     }
   }
+  .live-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    margin-left: 4px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  
+  .live-status {
+    color: #22c55e;
+    font-weight: 600;
+  }
+  
+  .live-score {
+    color: #212529 !important;
+  }
+  
+  .score-card.live {
+    border-color: rgba(34, 197, 94, 0.3);
+  }

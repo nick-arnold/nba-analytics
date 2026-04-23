@@ -83,7 +83,6 @@ export class HomeComponent implements OnInit {
         .sort((a: any, b: any) => a.away_team.city.localeCompare(b.away_team.city));
       this.todayGames = (results.today.results || results.today)
         .sort((a: any, b: any) => {
-          // Sort by tip-off time, then alphabetically
           if (a.game_datetime && b.game_datetime) {
             return new Date(a.game_datetime).getTime() - new Date(b.game_datetime).getTime();
           }
@@ -104,7 +103,7 @@ export class HomeComponent implements OnInit {
   }
 
   formatTipoff(datetime: string | null): string {
-    if (!datetime) return '';
+    if (!datetime) return 'Upcoming';
     const d = new Date(datetime);
     return d.toLocaleTimeString('en-US', {
       hour: 'numeric',
@@ -112,6 +111,17 @@ export class HomeComponent implements OnInit {
       timeZoneName: 'short',
       hour12: true,
     });
+  }
+
+  gameStatus(game: any): 'upcoming' | 'live' | 'final' {
+    if (!game.status) return game.home_score !== null ? 'final' : 'upcoming';
+    if (game.status === 'Final') return 'final';
+    if (game.status.includes('T') && game.status.includes('Z')) return 'upcoming';
+    return 'live';
+  }
+
+  liveLabel(status: string): string {
+    return status;
   }
 
   teamColor(abbr: string): string {

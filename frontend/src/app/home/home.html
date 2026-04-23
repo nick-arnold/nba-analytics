@@ -10,20 +10,27 @@
             <p class="scores-label">Today</p>
             <div class="score-cards">
               @for (game of todayGames; track game.id) {
-                @let played = game.home_score !== null && game.away_score !== null;
-                @let awayWin = played && game.away_score > game.home_score;
-                @let homeWin = played && game.home_score > game.away_score;
+                @let status = gameStatus(game);
+                @let awayWin = status === 'final' && game.away_score > game.home_score;
+                @let homeWin = status === 'final' && game.home_score > game.away_score;
                 <a class="score-card" [routerLink]="['/game', game.nba_game_id]"
-                   [style.border-top-color]="teamColor(game.away_team.abbreviation)">
+                   [style.border-top-color]="teamColor(game.away_team.abbreviation)"
+                   [class.live]="status === 'live'">
                   <div class="score-card-meta">
                     <span class="score-card-location">@ {{ game.home_team.city }}</span>
+                    @if (status === 'live') {
+                      <span class="live-dot"></span>
+                    }
                   </div>
                   <div class="score-card-team">
                     <span class="score-card-name" [style.color]="teamColor(game.away_team.abbreviation)">
                       {{ game.away_team.abbreviation }}
                     </span>
-                    <span class="score-card-score" [class.winner]="awayWin" [class.loser]="played && !awayWin">
-                      {{ played ? game.away_score : '—' }}
+                    <span class="score-card-score"
+                          [class.winner]="awayWin"
+                          [class.loser]="status === 'final' && !awayWin"
+                          [class.live-score]="status === 'live'">
+                      {{ status !== 'upcoming' ? game.away_score : '—' }}
                     </span>
                   </div>
                   <div class="score-card-divider"></div>
@@ -31,17 +38,20 @@
                     <span class="score-card-name" [style.color]="teamColor(game.home_team.abbreviation)">
                       {{ game.home_team.abbreviation }}
                     </span>
-                    <span class="score-card-score" [class.winner]="homeWin" [class.loser]="played && !homeWin">
-                      {{ played ? game.home_score : '—' }}
+                    <span class="score-card-score"
+                          [class.winner]="homeWin"
+                          [class.loser]="status === 'final' && !homeWin"
+                          [class.live-score]="status === 'live'">
+                      {{ status !== 'upcoming' ? game.home_score : '—' }}
                     </span>
                   </div>
                   <div class="score-card-footer">
-                    @if (!played) {
-                      <span class="score-card-status">
-                        {{ game.game_datetime ? formatTipoff(game.game_datetime) : 'Upcoming' }}
-                      </span>
+                    @if (status === 'upcoming') {
+                      <span class="score-card-status">{{ formatTipoff(game.game_datetime) }}</span>
+                    } @else if (status === 'live') {
+                      <span class="score-card-status live-status">{{ game.status }}</span>
                     } @else {
-                      <span class="score-card-status">Final · Won by {{ game.margin }}</span>
+                      <span class="score-card-status">Final</span>
                     }
                     @if (game.series_record) {
                       <span class="score-card-series">{{ game.series_record }}</span>
@@ -58,9 +68,9 @@
             <p class="scores-label">Yesterday</p>
             <div class="score-cards">
               @for (game of yesterdayGames; track game.id) {
-                @let played = game.home_score !== null && game.away_score !== null;
-                @let awayWin = played && game.away_score > game.home_score;
-                @let homeWin = played && game.home_score > game.away_score;
+                @let status = gameStatus(game);
+                @let awayWin = status === 'final' && game.away_score > game.home_score;
+                @let homeWin = status === 'final' && game.home_score > game.away_score;
                 <a class="score-card" [routerLink]="['/game', game.nba_game_id]"
                    [style.border-top-color]="teamColor(game.away_team.abbreviation)">
                   <div class="score-card-meta">
@@ -70,8 +80,10 @@
                     <span class="score-card-name" [style.color]="teamColor(game.away_team.abbreviation)">
                       {{ game.away_team.abbreviation }}
                     </span>
-                    <span class="score-card-score" [class.winner]="awayWin" [class.loser]="played && !awayWin">
-                      {{ played ? game.away_score : '—' }}
+                    <span class="score-card-score"
+                          [class.winner]="awayWin"
+                          [class.loser]="status === 'final' && !awayWin">
+                      {{ game.away_score ?? '—' }}
                     </span>
                   </div>
                   <div class="score-card-divider"></div>
@@ -79,12 +91,14 @@
                     <span class="score-card-name" [style.color]="teamColor(game.home_team.abbreviation)">
                       {{ game.home_team.abbreviation }}
                     </span>
-                    <span class="score-card-score" [class.winner]="homeWin" [class.loser]="played && !homeWin">
-                      {{ played ? game.home_score : '—' }}
+                    <span class="score-card-score"
+                          [class.winner]="homeWin"
+                          [class.loser]="status === 'final' && !homeWin">
+                      {{ game.home_score ?? '—' }}
                     </span>
                   </div>
                   <div class="score-card-footer">
-                    <span class="score-card-status">Final · Won by {{ game.margin }}</span>
+                    <span class="score-card-status">Final</span>
                     @if (game.series_record) {
                       <span class="score-card-series">{{ game.series_record }}</span>
                     }
