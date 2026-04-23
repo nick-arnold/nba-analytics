@@ -102,6 +102,11 @@
   color: var(--text-muted);
 }
 
+.center-panel {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
 .score-chart-section {
   margin: 0 0 1.5rem;
   padding: 1.25rem 1.5rem;
