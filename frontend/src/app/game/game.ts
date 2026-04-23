@@ -69,7 +69,6 @@ export class GameComponent implements OnInit {
     const homePoints = [0, ...plays.map((p: any) => p.home_score)];
     const awayPoints = [0, ...plays.map((p: any) => p.away_score)];
 
-    // Find quarter boundaries from actual data only
     const quarterLines: number[] = [];
     let lastPeriod = 1;
     plays.forEach((p: any, i: number) => {
@@ -79,7 +78,6 @@ export class GameComponent implements OnInit {
       }
     });
 
-    // Get unique periods actually present in the data
     const periodsPresent = [...new Set(plays.map((p: any) => p.period))].sort();
 
     const quarterPlugin = {
@@ -89,7 +87,6 @@ export class GameComponent implements OnInit {
         const xAxis = chart.scales.x;
         const yAxis = chart.scales.y;
 
-        // Draw vertical dividers only between completed periods
         ctx.save();
         ctx.strokeStyle = 'rgba(0,0,0,0.1)';
         ctx.lineWidth = 1;
@@ -103,22 +100,15 @@ export class GameComponent implements OnInit {
         });
         ctx.restore();
 
-        // Draw period labels only for periods present in the data
         ctx.save();
-        ctx.fillStyle = 'rgba(0,0,0,0.25)';
         ctx.font = '10px sans-serif';
         ctx.textAlign = 'center';
-
         const boundaries = [0, ...quarterLines, plays.length + 1];
         periodsPresent.forEach((period: number, i: number) => {
           const label = period <= 4 ? `Q${period}` : `OT${period - 4}`;
-          const displayLabel = isLive && i === periodsPresent.length - 1
-            ? `${label} ●`
-            : label;
+          const displayLabel = isLive && i === periodsPresent.length - 1 ? `${label} ●` : label;
           const midX = (xAxis.getPixelForValue(boundaries[i]) + xAxis.getPixelForValue(boundaries[i + 1])) / 2;
-          ctx.fillStyle = isLive && i === periodsPresent.length - 1
-            ? 'rgba(34,197,94,0.7)'
-            : 'rgba(0,0,0,0.25)';
+          ctx.fillStyle = isLive && i === periodsPresent.length - 1 ? 'rgba(34,197,94,0.7)' : 'rgba(0,0,0,0.25)';
           ctx.fillText(displayLabel, midX, yAxis.top - 6);
         });
         ctx.restore();
@@ -126,6 +116,12 @@ export class GameComponent implements OnInit {
     };
 
     if (this.chart) this.chart.destroy();
+
+    // Get the container width and constrain the canvas
+    const container = this.scoreChartRef.nativeElement.parentElement;
+    const maxWidth = 576;
+    const containerWidth = Math.min(container?.offsetWidth || maxWidth, maxWidth);
+    this.scoreChartRef.nativeElement.style.width = containerWidth + 'px';
 
     this.chart = new Chart(this.scoreChartRef.nativeElement, {
       type: 'line',
@@ -155,7 +151,7 @@ export class GameComponent implements OnInit {
         ],
       },
       options: {
-        responsive: true,
+        responsive: false,
         maintainAspectRatio: false,
         interaction: {
           mode: 'index',

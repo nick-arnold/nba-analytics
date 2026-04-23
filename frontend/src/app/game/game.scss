@@ -123,12 +123,10 @@
   .chart-wrap {
     position: relative;
     height: 180px;
-    max-width: 608px;
     width: 100%;
   
     canvas {
-      width: 100% !important;
-      height: 100% !important;
+      height: 180px !important;
     }
   }
   
