@@ -1,4 +1,4 @@
-<nav class="navbar" style="background: #fff; border-color: #d8d8d4; color: #1a1a18;">
+<nav class="navbar" style="background:#66665e; border-bottom: 1px solid rgba(255,255,255,0.08);">
   <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center gap-2" [routerLink]="['/']">
           <img 
@@ -16,7 +16,7 @@
         [(ngModel)]="searchQuery"
         (input)="onSearch()"
         (blur)="hideResults()"
-        style="background: #fff; border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.15);"
+        style="background: #fff; border-color: #d8d8d4; color: #1a1a18;"
       />
       @if (showResults) {
         <div class="dropdown-menu show position-absolute w-100">
