@@ -111,6 +111,10 @@ SIMPLE_JWT = {
 CELERY_BEAT_SCHEDULE = {
     'nightly-ingest': {
         'task': 'config.tasks.nightly_ingest',
-        'schedule': crontab(hour=6, minute=0),  # 6am UTC = 2am ET
+        'schedule': crontab(hour=6, minute=0),  # 6am UTC = 11pm PT
+    },
+    'live-score-poll': {
+        'task': 'config.tasks.live_score_poll',
+        'schedule': crontab(minute='*/2'),  # every 2 minutes
     },
 }
