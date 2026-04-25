@@ -1,0 +1,160 @@
+.shot-chart-wrap {
+  overflow: hidden;
+  background: #fff;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+// ── Controls ──────────────────────────────────────────────────────────────────
+.sc-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border, #dee2e6);
+  flex-wrap: wrap;
+}
+
+.sc-control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sc-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #9ca3af);
+  white-space: nowrap;
+}
+
+.sc-tabs {
+  display: flex;
+  border: 1px solid var(--border, #dee2e6);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.sc-tab {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border, #dee2e6);
+  color: var(--text-muted, #6b7280);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+
+  &:last-child { border-right: none; }
+  &:hover { background: #f3f4f6; color: #111827; }
+
+  &.active {
+    background: #111827;
+    color: #fff;
+  }
+}
+
+// ── Court ─────────────────────────────────────────────────────────────────────
+.sc-court-wrap {
+  width: 100%;
+  background: #f7f6f2;
+}
+
+.sc-court {
+  display: block;
+  width: 100%;
+}
+
+// Court SVG elements - these target the D3-generated elements
+:host ::ng-deep {
+  .court-bg { fill: #f0ede4; }
+
+  .court-line {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.2);
+    stroke-width: 1px;
+
+    &--dashed { stroke-dasharray: 4 4; }
+  }
+
+  .court-rim {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.35);
+    stroke-width: 1.5px;
+  }
+}
+
+// ── Legend ────────────────────────────────────────────────────────────────────
+.sc-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 1rem;
+  border-top: 1px solid var(--border, #dee2e6);
+  background: #fafafa;
+}
+
+.sc-legend-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, #9ca3af);
+}
+
+.sc-legend-bar {
+  flex: 1;
+  max-width: 160px;
+  height: 8px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #3266ad, #7ab0d8, #d4d4d0, #e8926a, #c0392b);
+}
+
+.sc-legend-size {
+  font-size: 10px;
+  color: var(--text-muted, #9ca3af);
+  margin-left: 8px;
+  letter-spacing: 0.04em;
+}
+
+// ── Stats strip ───────────────────────────────────────────────────────────────
+.sc-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--border, #dee2e6);
+}
+
+.sc-stat {
+  padding: 10px 14px;
+  border-right: 1px solid var(--border, #dee2e6);
+
+  &:last-child { border-right: none; }
+}
+
+.sc-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #9ca3af);
+  margin-bottom: 3px;
+}
+
+.sc-stat-val {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+.sc-loading {
+  padding: 2rem;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted, #9ca3af);
+}

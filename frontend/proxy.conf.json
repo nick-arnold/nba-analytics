@@ -1,7 +1,7 @@
 {
-    "/api": {
-      "target": "https://hoopatlas.com",
-      "secure": true,
-      "changeOrigin": true
-    }
+  "/api": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
   }
+}

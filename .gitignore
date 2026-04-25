@@ -4,3 +4,5 @@ venv/
 __pycache__/
 .DS_Store
 db.sqlite3
+frontend/proxy.conf.json
+frontend/proxy.conf.json

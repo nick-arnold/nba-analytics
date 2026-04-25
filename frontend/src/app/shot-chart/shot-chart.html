@@ -1,0 +1,57 @@
+@if (loading) {
+  <div class="sc-loading">Loading shot chart...</div>
+} @else if (error) {
+  <div class="sc-loading">Shot data unavailable.</div>
+} @else {
+  <div class="shot-chart-wrap">
+
+    <div class="sc-controls">
+      <div class="sc-control-group">
+        <span class="sc-label">Team</span>
+        <div class="sc-tabs">
+          <button class="sc-tab" [class.active]="activeTeam === 'both'" (click)="setTeam('both')">Both</button>
+          <button class="sc-tab" [class.active]="activeTeam === 'away'" (click)="setTeam('away')">{{ awayAbbr }}</button>
+          <button class="sc-tab" [class.active]="activeTeam === 'home'" (click)="setTeam('home')">{{ homeAbbr }}</button>
+        </div>
+      </div>
+      <div class="sc-control-group">
+        <span class="sc-label">Color</span>
+        <div class="sc-tabs">
+          <button class="sc-tab" [class.active]="activeMetric === 'fgpct'" (click)="setMetric('fgpct')">FG%</button>
+          <button class="sc-tab" [class.active]="activeMetric === 'freq'" (click)="setMetric('freq')">Frequency</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sc-court-wrap">
+      <svg #courtSvg class="sc-court"></svg>
+    </div>
+
+    <div class="sc-legend">
+      <span class="sc-legend-label">Low</span>
+      <div class="sc-legend-bar"></div>
+      <span class="sc-legend-label">High</span>
+      <span class="sc-legend-size">size = volume</span>
+    </div>
+
+    <div class="sc-stats">
+      <div class="sc-stat">
+        <div class="sc-stat-label">FGA</div>
+        <div class="sc-stat-val">{{ shotStats.fga }}</div>
+      </div>
+      <div class="sc-stat">
+        <div class="sc-stat-label">FG%</div>
+        <div class="sc-stat-val">{{ shotStats.fgPct }}</div>
+      </div>
+      <div class="sc-stat">
+        <div class="sc-stat-label">3P%</div>
+        <div class="sc-stat-val">{{ shotStats.fg3Pct }}</div>
+      </div>
+      <div class="sc-stat">
+        <div class="sc-stat-label">2P%</div>
+        <div class="sc-stat-val">{{ shotStats.fg2Pct }}</div>
+      </div>
+    </div>
+
+  </div>
+}

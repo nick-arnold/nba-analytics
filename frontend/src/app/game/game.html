@@ -117,54 +117,82 @@
 
     </div>
 
-    <div class="center-panel">
+    <!-- Score progression + stat comparison side by side -->
+    <div class="row g-3 mb-3">
 
       @if (scoringPlays.length > 0) {
-        <div class="score-chart-section">
-          <h2 class="section-label">Score progression</h2>
-          <div class="chart-wrap">
-            <canvas #scoreChart></canvas>
+        <div class="col-12 col-md-6">
+          <div class="score-chart-section h-100">
+            <h2 class="section-label">Score Progression</h2>
+            <div class="chart-wrap">
+              <canvas #scoreChart></canvas>
+            </div>
           </div>
         </div>
       }
 
       @if (awayTeamTotals && homeTeamTotals) {
-        <div class="stat-comparison">
-          @for (stat of [
-            { label: 'FG%',  away: awayTeamTotals.fg_pct,  home: homeTeamTotals.fg_pct,  isStr: true,  max: 30, awayRaw: awayTeamTotals.fgm + '/' + awayTeamTotals.fga,   homeRaw: homeTeamTotals.fgm + '/' + homeTeamTotals.fga },
-            { label: '3P%',  away: awayTeamTotals.fg3_pct, home: homeTeamTotals.fg3_pct, isStr: true,  max: 30, awayRaw: awayTeamTotals.fg3m + '/' + awayTeamTotals.fg3a, homeRaw: homeTeamTotals.fg3m + '/' + homeTeamTotals.fg3a },
-            { label: 'FT%',  away: awayTeamTotals.ft_pct,  home: homeTeamTotals.ft_pct,  isStr: true,  max: 30, awayRaw: awayTeamTotals.ftm + '/' + awayTeamTotals.fta,   homeRaw: homeTeamTotals.ftm + '/' + homeTeamTotals.fta },
-            { label: 'REB',  away: awayTeamTotals.reb,     home: homeTeamTotals.reb,     isStr: false, max: 20, awayRaw: null, homeRaw: null },
-            { label: 'AST',  away: awayTeamTotals.ast,     home: homeTeamTotals.ast,     isStr: false, max: 15, awayRaw: null, homeRaw: null },
-            { label: 'STL',  away: awayTeamTotals.stl,     home: homeTeamTotals.stl,     isStr: false, max: 10, awayRaw: null, homeRaw: null },
-            { label: 'BLK',  away: awayTeamTotals.blk,     home: homeTeamTotals.blk,     isStr: false, max: 10, awayRaw: null, homeRaw: null },
-            { label: 'TOV',  away: awayTeamTotals.turnover,home: homeTeamTotals.turnover,isStr: false, max: 15, awayRaw: null, homeRaw: null }
-          ]; track stat.label) {
-            @let awayNum = stat.isStr ? +stat.away : stat.away;
-            @let homeNum = stat.isStr ? +stat.home : stat.home;
-            @let diff = awayNum - homeNum;
-            <div class="stat-row">
-              <span class="stat-raw away">{{ stat.awayRaw ?? '' }}</span>
-              <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
-              <span class="stat-label">{{ stat.label }}</span>
-              <div class="bar-track">
-                <div class="bar-center-line"></div>
-                @if (diff === 0) {
-                  <div class="bar-even">EVEN</div>
-                } @else if (diff > 0) {
-                  <div class="bar-fill away" [style.width.%]="getBarPct(awayNum, homeNum, stat.max)"></div>
-                } @else {
-                  <div class="bar-fill home" [style.width.%]="getBarPct(awayNum, homeNum, stat.max)"></div>
-                }
-              </div>
-              <span class="stat-label">{{ stat.label }}</span>
-              <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
-              <span class="stat-raw home">{{ stat.homeRaw ?? '' }}</span>
+        <div class="col-12 col-md-6">
+          <div class="stat-comparison h-100">
+
+            <h2 class="section-label">Team Stats</h2>
+
+            <!-- Team names aligned to stat columns -->
+            <div class="stat-team-header">
+              <span class="stat-team-label away" [style.color]="teamColor(game.away_team.abbreviation)">
+                {{ game.away_team.name }}
+              </span>
+              <span class="stat-team-label home" [style.color]="teamColor(game.home_team.abbreviation)">
+                {{ game.home_team.name }}
+              </span>
             </div>
-          }
+
+            @for (stat of [
+              { label: 'FG%',  away: awayTeamTotals.fg_pct,  home: homeTeamTotals.fg_pct,  isStr: true,  max: 30, awayRaw: awayTeamTotals.fgm + '/' + awayTeamTotals.fga,   homeRaw: homeTeamTotals.fgm + '/' + homeTeamTotals.fga },
+              { label: '3P%',  away: awayTeamTotals.fg3_pct, home: homeTeamTotals.fg3_pct, isStr: true,  max: 30, awayRaw: awayTeamTotals.fg3m + '/' + awayTeamTotals.fg3a, homeRaw: homeTeamTotals.fg3m + '/' + homeTeamTotals.fg3a },
+              { label: 'FT%',  away: awayTeamTotals.ft_pct,  home: homeTeamTotals.ft_pct,  isStr: true,  max: 30, awayRaw: awayTeamTotals.ftm + '/' + awayTeamTotals.fta,   homeRaw: homeTeamTotals.ftm + '/' + homeTeamTotals.fta },
+              { label: 'REB',  away: awayTeamTotals.reb,     home: homeTeamTotals.reb,     isStr: false, max: 20, awayRaw: null, homeRaw: null },
+              { label: 'AST',  away: awayTeamTotals.ast,     home: homeTeamTotals.ast,     isStr: false, max: 15, awayRaw: null, homeRaw: null },
+              { label: 'STL',  away: awayTeamTotals.stl,     home: homeTeamTotals.stl,     isStr: false, max: 10, awayRaw: null, homeRaw: null },
+              { label: 'BLK',  away: awayTeamTotals.blk,     home: homeTeamTotals.blk,     isStr: false, max: 10, awayRaw: null, homeRaw: null },
+              { label: 'TOV',  away: awayTeamTotals.turnover,home: homeTeamTotals.turnover,isStr: false, max: 15, awayRaw: null, homeRaw: null }
+            ]; track stat.label) {
+              @let awayNum = stat.isStr ? +stat.away : stat.away;
+              @let homeNum = stat.isStr ? +stat.home : stat.home;
+              @let diff = awayNum - homeNum;
+              <div class="stat-row">
+                <span class="stat-raw away">{{ stat.awayRaw ?? '' }}</span>
+                <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
+                <span class="stat-label">{{ stat.label }}</span>
+                <div class="bar-track">
+                  <div class="bar-center-line"></div>
+                  @if (diff === 0) {
+                    <div class="bar-even">EVEN</div>
+                  } @else if (diff > 0) {
+                    <div class="bar-fill away" [style.background]="teamColor(game.away_team.abbreviation)" [style.width.%]="getBarPct(awayNum, homeNum, stat.max)"></div>
+                  } @else {
+                    <div class="bar-fill home" [style.background]="teamColor(game.home_team.abbreviation)" [style.width.%]="getBarPct(awayNum, homeNum, stat.max)"></div>
+                  }
+                </div>
+                <span class="stat-label">{{ stat.label }}</span>
+                <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
+                <span class="stat-raw home">{{ stat.homeRaw ?? '' }}</span>
+              </div>
+            }
+          </div>
         </div>
       }
 
+    </div>
+
+    <!-- Shot chart full width -->
+    <div class="score-chart-section mb-3">
+      <h2 class="section-label">Shot Chart</h2>
+      <app-shot-chart
+        [nbaGameId]="game.nba_game_id"
+        [homeTeam]="game.home_team.abbreviation"
+        [awayTeam]="game.away_team.abbreviation">
+      </app-shot-chart>
     </div>
 
     <div class="box-scores">

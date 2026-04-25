@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (
     PlayByPlayViewSet, PlayerStatViewSet,
     PlayerSeasonStatsViewSet, PlayerGameLogViewSet,
-    league_tov_avg, scoring_plays
+    league_tov_avg, scoring_plays, shot_chart
 )
 
 router = DefaultRouter()
@@ -15,4 +15,5 @@ router.register(r'player-game-log', PlayerGameLogViewSet, basename='player-game-
 urlpatterns = router.urls + [
     path('league-tov-avg/', league_tov_avg, name='league-tov-avg'),
     path('scoring-plays/', scoring_plays, name='scoring-plays'),
+    path('shot-chart/', shot_chart, name='shot-chart'),
 ]

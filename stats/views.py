@@ -112,3 +112,40 @@ def league_tov_avg(request):
         'league_tov_pct': tov_pct,
         'league_avg_tov_per_game': avg_tov_per_game
     })
+
+@api_view(['GET'])
+def shot_chart(request):
+    nba_game_id = request.query_params.get('game_id')
+    if not nba_game_id:
+        return Response({'error': 'game_id required'}, status=400)
+    try:
+        game = Game.objects.get(nba_game_id=nba_game_id)
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found'}, status=404)
+
+    from django.db.models import Q
+    shot_filter = (
+        Q(event_type__icontains='shot') | Q(event_type__icontains='layup')
+        ) & ~Q(event_type__icontains='turnover') & ~Q(event_type__icontains='foul')
+
+    shots = PlayByPlay.objects.filter(
+        game=game,
+        coordinate_x__isnull=False,
+        coordinate_y__isnull=False,
+    ).filter(shot_filter).select_related('team').order_by('order')
+
+    data = [{
+        'x': p.coordinate_x,
+        'y': p.coordinate_y,
+        'made': p.scoring_play,
+        'value': p.score_value,
+        'team': p.team.abbreviation if p.team else None,
+        'event_type': p.event_type,
+    } for p in shots]
+
+    return Response({
+        'game_id': nba_game_id,
+        'home_team': game.home_team.abbreviation,
+        'away_team': game.away_team.abbreviation,
+        'shots': data,
+    })

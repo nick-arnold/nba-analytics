@@ -7,6 +7,7 @@ import { LoginComponent } from './login/login';
 import { AccountComponent } from './account/account';
 import { CvComponent } from './cv/cv';
 import { ThesisComponent } from './cv/thesis/thesis';
+import { CompareComponent } from './compare/compare';
 import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'player/:id', component: Player },
   { path: 'player/:id/:season', component: Player },
   { path: 'game/:nbaGameId', component: GameComponent },
+  { path: 'compare', component: CompareComponent },
   { path: 'account', component: AccountComponent, canActivate: [authGuard] },
   { path: 'cv', component: CvComponent },
   { path: 'cv/thesis', component: ThesisComponent },
