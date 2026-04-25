@@ -354,6 +354,9 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.82rem;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 
   th {
     padding: 0.35rem 0.4rem;
@@ -392,4 +395,24 @@
   font-weight: 600;
   border-top: 2px solid var(--border);
   border-bottom: none;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.stat-val-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+
+  &.away { align-items: flex-end; }
+  &.home { align-items: flex-start; }
+}
+
+.stat-raw {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0.7;
 }

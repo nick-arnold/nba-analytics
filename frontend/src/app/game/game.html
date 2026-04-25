@@ -24,7 +24,6 @@
           <a class="sb-team-name" [routerLink]="['/team', game.away_team.abbreviation]">
             {{ game.away_team.city }}<br>{{ game.away_team.name }}
           </a>
-          
         </div>
 
         <div class="sb-middle">
@@ -48,7 +47,7 @@
                 }
                 <span>T</span>
               </div>
-              
+
               <div class="qg-row">
                 <span class="qg-abbr">{{ game.away_team.abbreviation }}</span>
                 @for (score of game.quarter_scores.away; track $index) {
@@ -102,20 +101,25 @@
       @if (awayTeamTotals && homeTeamTotals) {
         <div class="stat-comparison">
           @for (stat of [
-            { label: 'FG%',  away: awayTeamTotals.fg_pct,  home: homeTeamTotals.fg_pct,  isStr: true,  max: 30 },
-            { label: '3P%',  away: awayTeamTotals.fg3_pct, home: homeTeamTotals.fg3_pct, isStr: true,  max: 30 },
-            { label: 'FT%',  away: awayTeamTotals.ft_pct,  home: homeTeamTotals.ft_pct,  isStr: true,  max: 30 },
-            { label: 'REB',  away: awayTeamTotals.reb,     home: homeTeamTotals.reb,     isStr: false, max: 20 },
-            { label: 'AST',  away: awayTeamTotals.ast,     home: homeTeamTotals.ast,     isStr: false, max: 15 },
-            { label: 'STL',  away: awayTeamTotals.stl,     home: homeTeamTotals.stl,     isStr: false, max: 10 },
-            { label: 'BLK',  away: awayTeamTotals.blk,     home: homeTeamTotals.blk,     isStr: false, max: 10 },
-            { label: 'TOV',  away: awayTeamTotals.turnover,home: homeTeamTotals.turnover,isStr: false, max: 15 }
+            { label: 'FG%',  away: awayTeamTotals.fg_pct,  home: homeTeamTotals.fg_pct,  isStr: true,  max: 30, awayRaw: awayTeamTotals.fgm + '/' + awayTeamTotals.fga,   homeRaw: homeTeamTotals.fgm + '/' + homeTeamTotals.fga },
+            { label: '3P%',  away: awayTeamTotals.fg3_pct, home: homeTeamTotals.fg3_pct, isStr: true,  max: 30, awayRaw: awayTeamTotals.fg3m + '/' + awayTeamTotals.fg3a, homeRaw: homeTeamTotals.fg3m + '/' + homeTeamTotals.fg3a },
+            { label: 'FT%',  away: awayTeamTotals.ft_pct,  home: homeTeamTotals.ft_pct,  isStr: true,  max: 30, awayRaw: awayTeamTotals.ftm + '/' + awayTeamTotals.fta,   homeRaw: homeTeamTotals.ftm + '/' + homeTeamTotals.fta },
+            { label: 'REB',  away: awayTeamTotals.reb,     home: homeTeamTotals.reb,     isStr: false, max: 20, awayRaw: null, homeRaw: null },
+            { label: 'AST',  away: awayTeamTotals.ast,     home: homeTeamTotals.ast,     isStr: false, max: 15, awayRaw: null, homeRaw: null },
+            { label: 'STL',  away: awayTeamTotals.stl,     home: homeTeamTotals.stl,     isStr: false, max: 10, awayRaw: null, homeRaw: null },
+            { label: 'BLK',  away: awayTeamTotals.blk,     home: homeTeamTotals.blk,     isStr: false, max: 10, awayRaw: null, homeRaw: null },
+            { label: 'TOV',  away: awayTeamTotals.turnover,home: homeTeamTotals.turnover,isStr: false, max: 15, awayRaw: null, homeRaw: null }
           ]; track stat.label) {
             @let awayNum = stat.isStr ? +stat.away : stat.away;
             @let homeNum = stat.isStr ? +stat.home : stat.home;
             @let diff = awayNum - homeNum;
             <div class="stat-row">
-              <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
+              <div class="stat-val-group away">
+                <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
+                @if (stat.awayRaw) {
+                  <span class="stat-raw">{{ stat.awayRaw }}</span>
+                }
+              </div>
               <span class="stat-label">{{ stat.label }}</span>
               <div class="bar-track">
                 <div class="bar-center-line"></div>
@@ -128,7 +132,12 @@
                 }
               </div>
               <span class="stat-label">{{ stat.label }}</span>
-              <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
+              <div class="stat-val-group home">
+                <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
+                @if (stat.homeRaw) {
+                  <span class="stat-raw">{{ stat.homeRaw }}</span>
+                }
+              </div>
             </div>
           }
         </div>
@@ -147,61 +156,63 @@
               {{ side.team.city }} {{ side.team.name }}
             </a>
           </h2>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th class="left">Player</th>
-                <th>MIN</th>
-                <th>PTS</th>
-                <th>REB</th>
-                <th>AST</th>
-                <th>STL</th>
-                <th>BLK</th>
-                <th>TOV</th>
-                <th>FG</th>
-                <th>3P</th>
-                <th>FT</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (p of side.box; track p.player_id) {
-                <tr [class.dnp-row]="isDnp(p)">
-                  <td class="left player-name">
-                    <a [routerLink]="['/player', p.player_slug]">{{ p.player_name }}</a>
-                  </td>
-                  <td class="muted">{{ formatMinutes(p.minutes) }}</td>
-                  @if (isDnp(p)) {
-                    <td colspan="9" class="dnp muted">Did not play</td>
-                  } @else {
-                    <td>{{ p.pts ?? '—' }}</td>
-                    <td>{{ p.reb ?? '—' }}</td>
-                    <td>{{ p.ast ?? '—' }}</td>
-                    <td>{{ p.stl ?? '—' }}</td>
-                    <td>{{ p.blk ?? '—' }}</td>
-                    <td>{{ p.turnover ?? '—' }}</td>
-                    <td class="muted small">{{ p.fgm }}/{{ p.fga }}</td>
-                    <td class="muted small">{{ p.fg3m }}/{{ p.fg3a }}</td>
-                    <td class="muted small">{{ p.ftm }}/{{ p.fta }}</td>
-                  }
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="left">Player</th>
+                  <th>MIN</th>
+                  <th>PTS</th>
+                  <th>REB</th>
+                  <th>AST</th>
+                  <th>STL</th>
+                  <th>BLK</th>
+                  <th>TOV</th>
+                  <th>FG</th>
+                  <th>3P</th>
+                  <th>FT</th>
                 </tr>
-              }
-              @if (side.totals) {
-                <tr class="totals-row">
-                  <td class="left">Totals</td>
-                  <td></td>
-                  <td>{{ side.totals.pts }}</td>
-                  <td>{{ side.totals.reb }}</td>
-                  <td>{{ side.totals.ast }}</td>
-                  <td>{{ side.totals.stl }}</td>
-                  <td>{{ side.totals.blk }}</td>
-                  <td>{{ side.totals.turnover }}</td>
-                  <td class="muted small">{{ side.totals.fgm }}/{{ side.totals.fga }}</td>
-                  <td class="muted small">{{ side.totals.fg3m }}/{{ side.totals.fg3a }}</td>
-                  <td class="muted small">{{ side.totals.ftm }}/{{ side.totals.fta }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (p of side.box; track p.player_id) {
+                  <tr [class.dnp-row]="isDnp(p)">
+                    <td class="left player-name">
+                      <a [routerLink]="['/player', p.player_slug]">{{ p.player_name }}</a>
+                    </td>
+                    <td class="muted">{{ formatMinutes(p.minutes) }}</td>
+                    @if (isDnp(p)) {
+                      <td colspan="9" class="dnp muted">Did not play</td>
+                    } @else {
+                      <td>{{ p.pts ?? '—' }}</td>
+                      <td>{{ p.reb ?? '—' }}</td>
+                      <td>{{ p.ast ?? '—' }}</td>
+                      <td>{{ p.stl ?? '—' }}</td>
+                      <td>{{ p.blk ?? '—' }}</td>
+                      <td>{{ p.turnover ?? '—' }}</td>
+                      <td class="muted small">{{ p.fgm }}/{{ p.fga }}</td>
+                      <td class="muted small">{{ p.fg3m }}/{{ p.fg3a }}</td>
+                      <td class="muted small">{{ p.ftm }}/{{ p.fta }}</td>
+                    }
+                  </tr>
+                }
+                @if (side.totals) {
+                  <tr class="totals-row">
+                    <td class="left">Totals</td>
+                    <td></td>
+                    <td>{{ side.totals.pts }}</td>
+                    <td>{{ side.totals.reb }}</td>
+                    <td>{{ side.totals.ast }}</td>
+                    <td>{{ side.totals.stl }}</td>
+                    <td>{{ side.totals.blk }}</td>
+                    <td>{{ side.totals.turnover }}</td>
+                    <td class="muted small">{{ side.totals.fgm }}/{{ side.totals.fga }}</td>
+                    <td class="muted small">{{ side.totals.fg3m }}/{{ side.totals.fg3a }}</td>
+                    <td class="muted small">{{ side.totals.ftm }}/{{ side.totals.fta }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </section>
       }
     </div>
