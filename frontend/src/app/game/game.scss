@@ -73,6 +73,7 @@
   gap: 0.3rem;
   min-width: 120px;
   align-items: center;
+
   &.away { align-items: center; }
   &.home { align-items: center; }
 }
@@ -84,6 +85,7 @@
   text-decoration: none;
   line-height: 1.3;
   text-align: center;
+
   &:hover { text-decoration: underline; }
 
   @media (max-width: 600px) {
@@ -178,6 +180,7 @@
 
   span:first-child { text-align: left; }
 }
+
 .qg-row {
   display: grid;
   grid-template-columns: 2.5rem repeat(auto-fill, minmax(1.75rem, 1fr));
@@ -249,9 +252,23 @@
   border-radius: 12px;
 }
 
+.stat-comparison-header {
+  display: grid;
+  grid-template-columns: 3rem 3.5rem 3rem 1fr 3rem 3.5rem 3rem;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.1rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
 .stat-row {
   display: grid;
-  grid-template-columns: 3.5rem 3rem 1fr 3rem 3.5rem;
+  grid-template-columns: 3rem 3.5rem 3rem 1fr 3rem 3.5rem 3rem;
   align-items: center;
   gap: 0.5rem;
 }
@@ -273,6 +290,15 @@
   color: var(--text-muted);
   text-align: center;
   white-space: nowrap;
+}
+
+.stat-raw {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+
+  &.away { text-align: right; }
+  &.home { text-align: left; }
 }
 
 .bar-track {
@@ -400,19 +426,4 @@
 .table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-}
-
-.stat-val-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-
-  &.away { align-items: flex-end; }
-  &.home { align-items: flex-start; }
-}
-
-.stat-raw {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  opacity: 0.7;
 }
