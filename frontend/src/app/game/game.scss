@@ -215,11 +215,13 @@
   font-weight: 600;
   font-size: 0.72rem;
   text-align: left;
+  white-space: nowrap;
 }
 
 .qg-total {
   font-weight: 700;
   color: var(--text-muted);
+  white-space: nowrap;
 
   &.winner { color: var(--text); }
 }
