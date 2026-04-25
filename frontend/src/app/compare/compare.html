@@ -5,103 +5,77 @@
     <p class="subtitle">Select up to {{ MAX_PLAYERS }} players and seasons to compare</p>
   </div>
 
+  <!-- Player slots -->
   <div class="slots" [class.two]="slots.length === 2" [class.three]="slots.length === 3" [class.four]="slots.length === 4" [class.five]="slots.length === 5">
     @for (slot of slots; track $index) {
-      <div class="slot">
+      <div class="slot" [class.slot--active]="slot.selectedPlayer">
 
-        <div class="slot-header">
-          @if (slots.length > 2) {
-            <button class="remove-btn" (click)="removeSlot($index)" title="Remove">✕</button>
-          }
-        </div>
-
-        <!-- Search -->
-        <div class="search-wrap" [class.has-player]="slot.selectedPlayer">
-          <div class="search-input-wrap">
-            <input
-              class="search-input"
-              type="text"
-              placeholder="Search player..."
-              [(ngModel)]="slot.searchQuery"
-              (input)="onSearchInput(slot)"
-              (blur)="hideDropdown(slot)"
-              autocomplete="off"
-            />
-            @if (slot.searchLoading) {
-              <span class="search-spinner"></span>
-            }
-          </div>
-
-          @if (slot.showDropdown && slot.searchResults.length > 0) {
-            <div class="search-dropdown">
-              @for (player of slot.searchResults; track player.id) {
-                <button class="search-result" (mousedown)="selectPlayer(slot, player)">
-                  <span class="result-name">{{ player.first_name }} {{ player.last_name }}</span>
-                  @if (player.team) {
-                    <span class="result-team muted">{{ player.team.abbreviation ?? player.team }}</span>
-                  }
-                </button>
+        <div class="slot-top">
+          <!-- Search -->
+          <div class="search-wrap">
+            <div class="search-input-wrap">
+              <input
+                class="search-input"
+                type="text"
+                [placeholder]="slot.selectedPlayer ? (slot.selectedPlayer.first_name + ' ' + slot.selectedPlayer.last_name) : 'Search player...'"
+                [(ngModel)]="slot.searchQuery"
+                (input)="onSearchInput(slot)"
+                (blur)="hideDropdown(slot)"
+                autocomplete="off"
+              />
+              @if (slot.searchLoading) {
+                <span class="search-spinner"></span>
               }
             </div>
-          }
-        </div>
 
-        <!-- Season selector -->
-        @if (slot.selectedPlayer && slot.availableSeasons.length > 0) {
-          <div class="season-wrap">
-            <select class="season-select" [(ngModel)]="slot.selectedSeason" (change)="onSeasonChange(slot)">
-              @for (season of slot.availableSeasons; track season) {
-                <option [value]="season">{{ season }}</option>
-              }
-            </select>
-          </div>
-        }
-
-
-        <!-- Loading -->
-        @if (slot.loading) {
-          <div class="slot-loading">
-            <div class="loading-bar"></div>
-          </div>
-        }
-
-        <!-- Stats (mobile: per-slot display) -->
-        @if (slot.stats && !slot.loading) {
-          <div class="slot-stats mobile-only">
-            @for (row of statRows; track row.key) {
-              @let val = getStatValue(slot, row.key);
-              <div class="mobile-stat-row" [class.leader]="isLeader(row.key, row.higher, $index)">
-                <span class="mobile-stat-label">{{ row.label }}</span>
-                <span class="mobile-stat-val">{{ formatStat(val, row) }}</span>
+            @if (slot.showDropdown && slot.searchResults.length > 0) {
+              <div class="search-dropdown">
+                @for (player of slot.searchResults; track player.id) {
+                  <button class="search-result" (mousedown)="selectPlayer(slot, player)">
+                    <span class="result-name">{{ player.first_name }} {{ player.last_name }}</span>
+                    @if (player.team) {
+                      <span class="result-team">{{ player.team.abbreviation ?? player.team }}</span>
+                    }
+                  </button>
+                }
               </div>
             }
           </div>
-        }
 
-        <!-- Empty state -->
-        @if (!slot.selectedPlayer && !slot.loading) {
-          <div class="slot-empty">
-            <span class="empty-icon">＋</span>
-            <span class="empty-label">Choose a player</span>
+          <!-- Season + remove inline -->
+          <div class="slot-controls">
+            @if (slot.selectedPlayer && slot.availableSeasons.length > 0) {
+              <select class="season-select" [(ngModel)]="slot.selectedSeason" (change)="onSeasonChange(slot)">
+                @for (season of slot.availableSeasons; track season) {
+                  <option [value]="season">{{ season }}</option>
+                }
+              </select>
+            }
+            @if (slots.length > 2) {
+              <button class="remove-btn" (click)="removeSlot($index)" title="Remove">✕</button>
+            }
           </div>
+        </div>
+
+        @if (slot.loading) {
+          <div class="loading-bar"></div>
         }
 
       </div>
     }
+
+    <!-- Add player slot -->
+    @if (slots.length < MAX_PLAYERS) {
+      <button class="slot slot--add" (click)="addSlot()">
+        <span class="add-icon">+</span>
+        <span class="add-label">Add Player</span>
+      </button>
+    }
   </div>
 
-  <!-- Add player button -->
-  @if (slots.length < MAX_PLAYERS) {
-    <div class="add-wrap">
-      <button class="add-btn" (click)="addSlot()">
-        + Add Player
-      </button>
-    </div>
-  }
-
-  <!-- Comparison table (desktop) -->
+  <!-- Comparison table — shown on all screen sizes, scrollable on mobile -->
   @if (anyPlayerSelected) {
-    <div class="comparison-table-wrap desktop-only">
+    <div class="comparison-table-wrap">
       <table class="comparison-table">
         <thead>
           <tr>
@@ -114,11 +88,11 @@
                       {{ slot.selectedPlayer.first_name }} {{ slot.selectedPlayer.last_name }}
                     </a>
                     @if (slot.selectedSeason) {
-                      <span class="th-season muted">{{ slot.selectedSeason }}</span>
+                      <span class="th-season">{{ slot.selectedSeason }}</span>
                     }
                   </div>
                 } @else {
-                  <span class="muted">—</span>
+                  <span class="empty-col">—</span>
                 }
               </th>
             }
@@ -130,7 +104,9 @@
               <td class="stat-label-cell">{{ row.label }}</td>
               @for (slot of slots; track $index; let slotIdx = $index) {
                 @let val = getStatValue(slot, row.key);
-                <td class="stat-val-cell" [class.leader]="isLeader(row.key, row.higher, slotIdx)" [class.empty]="!slot.selectedPlayer">
+                <td class="stat-val-cell"
+                    [class.leader]="isLeader(row.key, row.higher, slotIdx)"
+                    [class.empty]="!slot.selectedPlayer">
                   {{ formatStat(val, row) }}
                 </td>
               }

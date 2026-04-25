@@ -83,6 +83,7 @@ export class CompareComponent implements OnInit {
         slot.selectedPlayer = player;
         slot.searchQuery = `${player.first_name} ${player.last_name}`;
         this.loadSeasons(slot, player.id, season);
+        this.cdr.detectChanges();
       },
       error: () => {
         slot.loading = false;
@@ -100,10 +101,13 @@ export class CompareComponent implements OnInit {
         return `${slug}:${season}`;
       });
 
+    // Use replaceUrl so the URL updates without pushing a history entry
+    // and without triggering scroll restoration
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: parts.length > 0 ? { p: parts.join(',') } : {},
       replaceUrl: true,
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -161,6 +165,7 @@ export class CompareComponent implements OnInit {
     this.slots[index].searchSubject.complete();
     this.slots.splice(index, 1);
     this.syncUrl();
+    this.cdr.detectChanges();
   }
 
   // ── Search & selection ─────────────────────────────────────────────────────
@@ -214,7 +219,6 @@ export class CompareComponent implements OnInit {
   onSeasonChange(slot: PlayerSlot) {
     if (!slot.selectedPlayer || !slot.selectedSeason) return;
     this.loadStats(slot, slot.selectedPlayer.id, slot.selectedSeason);
-    this.syncUrl();
   }
 
   loadStats(slot: PlayerSlot, playerId: number, season: string) {
