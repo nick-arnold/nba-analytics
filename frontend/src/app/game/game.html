@@ -9,19 +9,24 @@
 
     <div class="game-header">
 
-      @if (game.series_record) {
+      @if (game.series_record || game.game_type !== 'regular_season') {
         <div class="series-context">
           <span class="game-type-badge">{{ gameTypeLabel(game.game_type) }}</span>
-          <span class="series-record">{{ game.series_record }}</span>
+          @if (game.series_record) {
+            <span class="series-dot">·</span>
+            <span class="series-record">{{ game.series_record }}</span>
+          }
         </div>
       }
 
       <div class="scoreboard">
+
         <div class="sb-team away">
           <a class="sb-team-name" [routerLink]="['/team', game.away_team.abbreviation]">
-            {{ game.away_team.city }}<br>{{ game.away_team.name }}
+            {{ game.away_team.city }} {{ game.away_team.name }}
           </a>
-          <span class="sb-score" [class.winner]="game.away_score > game.home_score">
+          <span class="sb-score" [class.winner]="game.away_score > game.home_score"
+                [class.loser]="game.home_score > game.away_score">
             {{ game.away_score ?? '—' }}
           </span>
         </div>
@@ -68,19 +73,21 @@
             </div>
           }
 
-          @if (!game.series_record) {
+          @if (!game.series_record && !game.quarter_scores) {
             <span class="sb-date muted">{{ game.game_date }}</span>
           }
         </div>
 
         <div class="sb-team home">
-          <span class="sb-score" [class.winner]="game.home_score > game.away_score">
+          <a class="sb-team-name" [routerLink]="['/team', game.home_team.abbreviation]">
+            {{ game.home_team.city }} {{ game.home_team.name }}
+          </a>
+          <span class="sb-score" [class.winner]="game.home_score > game.away_score"
+                [class.loser]="game.away_score > game.home_score">
             {{ game.home_score ?? '—' }}
           </span>
-          <a class="sb-team-name" [routerLink]="['/team', game.home_team.abbreviation]">
-            {{ game.home_team.city }}<br>{{ game.home_team.name }}
-          </a>
         </div>
+
       </div>
 
     </div>
