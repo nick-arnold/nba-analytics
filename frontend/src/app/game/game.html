@@ -18,12 +18,13 @@
 
       <div class="scoreboard">
         <div class="sb-team away">
-          <a class="sb-team-name" [routerLink]="['/team', game.away_team.abbreviation]">
-            {{ game.away_team.city }}<br>{{ game.away_team.name }}
-          </a>
           <span class="sb-score" [class.winner]="game.away_score > game.home_score">
             {{ game.away_score ?? '—' }}
           </span>
+          <a class="sb-team-name" [routerLink]="['/team', game.away_team.abbreviation]">
+            {{ game.away_team.city }}<br>{{ game.away_team.name }}
+          </a>
+          
         </div>
 
         <div class="sb-middle">
@@ -47,6 +48,7 @@
                 }
                 <span>T</span>
               </div>
+              
               <div class="qg-row">
                 <span class="qg-abbr">{{ game.away_team.abbreviation }}</span>
                 @for (score of game.quarter_scores.away; track $index) {
@@ -56,6 +58,7 @@
                   {{ game.away_score }}
                 </span>
               </div>
+
               <div class="qg-row">
                 <span class="qg-abbr">{{ game.home_team.abbreviation }}</span>
                 @for (score of game.quarter_scores.home; track $index) {
