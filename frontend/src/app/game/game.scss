@@ -362,8 +362,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
-  max-width: 100%;
-  overflow: hidden;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -432,7 +430,6 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   width: 100%;
-  max-width: 100%;
 }
 
 @media (max-width: 600px) {
