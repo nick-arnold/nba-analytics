@@ -385,5 +385,71 @@ $text-muted:   #9ca3af;
   }
 }
 
+// ── Popular comparisons ───────────────────────────────────────────────────────
+.popular-comparisons {
+  margin: 3rem 1rem 0;
+
+  @media (min-width: 700px) {
+    margin: 4rem 2.5rem 0;
+  }
+}
+
+.popular-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $text-muted;
+  margin: 0 0 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid $border;
+}
+
+.comparison-group {
+  margin-bottom: 2rem;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.group-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: $text;
+  margin: 0 0 0.75rem;
+
+  @media (min-width: 700px) { font-size: 16px; }
+}
+
+.comparison-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.comparison-link {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-mid;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.15s;
+
+  &:hover {
+    color: $text;
+    border-color: $text;
+    background: $border-light;
+  }
+
+  @media (min-width: 700px) {
+    font-size: 13px;
+    padding: 7px 14px;
+  }
+}
+
 // ── Utilities ─────────────────────────────────────────────────────────────────
 .muted { color: $text-muted; }

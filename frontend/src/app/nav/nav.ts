@@ -57,9 +57,7 @@ export class NavComponent {
   goToPlayer(slug: string) {
     this.showResults = false;
     this.searchQuery = '';
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate(['/player', slug]);
-    });
+    this.router.navigate(['/player', slug]);
   }
 
   hideResults() { setTimeout(() => this.showResults = false, 200); }

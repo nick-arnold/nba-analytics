@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { TurnoverTrackerComponent } from '../components/turnover-tracker/turnover-tracker';
 
 @Component({
@@ -12,7 +12,7 @@ import { TurnoverTrackerComponent } from '../components/turnover-tracker/turnove
   templateUrl: './player.html',
   styleUrl: './player.scss',
 })
-export class Player implements OnInit {
+export class Player implements OnInit, OnDestroy {
   player: any = null;
   seasonStats: any[] = [];
   gameLog: any[] = [];
@@ -21,6 +21,8 @@ export class Player implements OnInit {
   public playerId: string = '';
   public playerNumericId: string = '';
   selectedSeason: string = '2025-26';
+
+  private routeSub?: Subscription;
 
   get currentSeasonStats(): any {
     return this.seasonStats.find(s => s.season === this.selectedSeason) || null;
@@ -54,8 +56,35 @@ export class Player implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.playerId = this.route.snapshot.paramMap.get('id') || '';
-    const seasonParam = this.route.snapshot.paramMap.get('season');
+    this.routeSub = this.route.paramMap.subscribe(params => {
+      const newPlayerId = params.get('id') || '';
+      const seasonParam = params.get('season');
+
+      // If just the season changed (same player), only update the season selection
+      if (newPlayerId === this.playerId && this.player) {
+        if (seasonParam && this.seasonStats.find((s: any) => s.season === seasonParam)) {
+          this.selectedSeason = seasonParam;
+          this.cdr.detectChanges();
+        }
+        return;
+      }
+
+      // Otherwise, it's a new player — reset everything and load fresh
+      this.playerId = newPlayerId;
+      this.loadPlayer(seasonParam);
+    });
+  }
+
+  ngOnDestroy() {
+    this.routeSub?.unsubscribe();
+  }
+
+  private loadPlayer(seasonParam: string | null) {
+    this.loading = true;
+    this.player = null;
+    this.seasonStats = [];
+    this.gameLog = [];
+    this.cdr.detectChanges();
 
     this.http.get(`/api/players/players/${this.playerId}/`).subscribe((player: any) => {
       this.player = player;
@@ -72,6 +101,7 @@ export class Player implements OnInit {
           .sort((a: any, b: any) => new Date(b.game_date).getTime() - new Date(a.game_date).getTime());
 
         const teamList = results.teams.results || results.teams;
+        this.teams = new Map();
         teamList.forEach((t: any) => this.teams.set(t.id, t));
 
         if (seasonParam && this.seasonStats.find((s: any) => s.season === seasonParam)) {

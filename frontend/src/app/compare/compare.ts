@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
+import { Subject, Subscription, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 
 interface PlayerSlot {
   searchQuery: string;
@@ -16,6 +16,16 @@ interface PlayerSlot {
   searchLoading: boolean;
   showDropdown: boolean;
   searchSubject: Subject<string>;
+}
+
+interface ComparisonLink {
+  label: string;
+  slugs: string[];
+}
+
+interface ComparisonGroup {
+  title: string;
+  comparisons: ComparisonLink[];
 }
 
 const STAT_ROWS = [
@@ -31,6 +41,55 @@ const STAT_ROWS = [
   { key: 'gp',      label: 'GP',   higher: true,  decimals: 0 },
 ];
 
+const POPULAR_COMPARISONS: ComparisonGroup[] = [
+  {
+    title: 'MVP Race',
+    comparisons: [
+      { label: 'SGA vs Jokić',         slugs: ['shai-gilgeous-alexander', 'nikola-jokic'] },
+      { label: 'SGA vs Wembanyama',    slugs: ['shai-gilgeous-alexander', 'victor-wembanyama'] },
+      { label: 'Jokić vs Wembanyama',  slugs: ['nikola-jokic', 'victor-wembanyama'] },
+      { label: 'SGA vs Luka',          slugs: ['shai-gilgeous-alexander', 'luka-doncic'] },
+      { label: 'The Big 4',            slugs: ['shai-gilgeous-alexander', 'nikola-jokic', 'victor-wembanyama', 'luka-doncic'] },
+    ],
+  },
+  {
+    title: 'Best Guards',
+    comparisons: [
+      { label: 'SGA vs Curry',          slugs: ['shai-gilgeous-alexander', 'stephen-curry'] },
+      { label: 'Luka vs Curry',         slugs: ['luka-doncic', 'stephen-curry'] },
+      { label: 'Haliburton vs Maxey',   slugs: ['tyrese-haliburton', 'tyrese-maxey'] },
+      { label: 'Edwards vs Booker',     slugs: ['anthony-edwards', 'devin-booker'] },
+    ],
+  },
+  {
+    title: 'Best Bigs',
+    comparisons: [
+      { label: 'Jokić vs Embiid',           slugs: ['nikola-jokic', 'joel-embiid'] },
+      { label: 'Wemby vs Jokić vs Embiid',  slugs: ['victor-wembanyama', 'nikola-jokic', 'joel-embiid'] },
+      { label: 'Sabonis vs Jokić',          slugs: ['domantas-sabonis', 'nikola-jokic'] },
+      { label: 'Bam vs AD',                 slugs: ['bam-adebayo', 'anthony-davis'] },
+    ],
+  },
+  {
+    title: 'Forward Debates',
+    comparisons: [
+      { label: 'Tatum vs Brown',       slugs: ['jayson-tatum', 'jaylen-brown'] },
+      { label: 'Giannis vs Tatum',     slugs: ['giannis-antetokounmpo', 'jayson-tatum'] },
+      { label: 'LeBron vs Durant',     slugs: ['lebron-james', 'kevin-durant'] },
+      { label: 'Giannis vs LeBron',    slugs: ['giannis-antetokounmpo', 'lebron-james'] },
+    ],
+  },
+  {
+    title: 'Young Stars',
+    comparisons: [
+      { label: 'Wemby vs Chet',         slugs: ['victor-wembanyama', 'chet-holmgren'] },
+      { label: 'Cunningham vs Edwards', slugs: ['cade-cunningham', 'anthony-edwards'] },
+      { label: 'Banchero vs Wagner',    slugs: ['paolo-banchero', 'franz-wagner'] },
+      { label: 'Flagg vs Knueppel',     slugs: ['cooper-flagg', 'kon-knueppel'] },
+    ],
+  },
+];
+
 @Component({
   selector: 'app-compare',
   standalone: true,
@@ -38,10 +97,14 @@ const STAT_ROWS = [
   templateUrl: './compare.html',
   styleUrl: './compare.scss',
 })
-export class CompareComponent implements OnInit {
+export class CompareComponent implements OnInit, OnDestroy {
   slots: PlayerSlot[] = [];
   statRows = STAT_ROWS;
+  popularComparisons = POPULAR_COMPARISONS;
   readonly MAX_PLAYERS = 5;
+
+  private routeSub?: Subscription;
+  private lastSyncedParam: string | null = null;
 
   constructor(
     private http: HttpClient,
@@ -51,16 +114,36 @@ export class CompareComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const params = this.route.snapshot.queryParamMap.get('p');
-    if (params) {
-      this.initFromParams(params);
-    } else {
-      this.addSlot();
-      this.addSlot();
-    }
+    this.routeSub = this.route.queryParamMap.subscribe(params => {
+      const p = params.get('p');
+  
+      if (p === this.lastSyncedParam) return;
+  
+      this.resetSlots();
+      this.lastSyncedParam = p;
+  
+      if (p) {
+        this.initFromParams(p);
+      } else {
+        this.addSlot();
+        this.addSlot();
+      }
+  
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    this.routeSub?.unsubscribe();
+    this.slots.forEach(s => s.searchSubject.complete());
   }
 
   // ── URL encoding/decoding ──────────────────────────────────────────────────
+
+  private resetSlots() {
+    this.slots.forEach(s => s.searchSubject.complete());
+    this.slots = [];
+  }
 
   private initFromParams(params: string) {
     const entries = params.split(',').filter(Boolean).slice(0, this.MAX_PLAYERS);
@@ -101,14 +184,19 @@ export class CompareComponent implements OnInit {
         return `${slug}:${season}`;
       });
 
-    // Use replaceUrl so the URL updates without pushing a history entry
-    // and without triggering scroll restoration
+    const newParam = parts.length > 0 ? parts.join(',') : null;
+    this.lastSyncedParam = newParam;
+
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: parts.length > 0 ? { p: parts.join(',') } : {},
+      queryParams: newParam ? { p: newParam } : {},
       replaceUrl: true,
       queryParamsHandling: 'merge',
     });
+  }
+
+  buildComparisonQueryParams(slugs: string[]): { p: string } {
+    return { p: slugs.map(s => `${s}:`).join(',') };
   }
 
   // ── Slot management ────────────────────────────────────────────────────────

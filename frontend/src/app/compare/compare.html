@@ -117,4 +117,25 @@
     </div>
   }
 
+  <!-- Popular comparisons — shown when no players are selected -->
+  @if (!anyPlayerSelected) {
+    <div class="popular-comparisons">
+      <h2 class="popular-title">Popular Comparisons</h2>
+      @for (group of popularComparisons; track group.title) {
+        <div class="comparison-group">
+          <h3 class="group-title">{{ group.title }}</h3>
+          <div class="comparison-links">
+            @for (comp of group.comparisons; track comp.label) {
+              <a class="comparison-link"
+                 [routerLink]="['/compare']"
+                 [queryParams]="buildComparisonQueryParams(comp.slugs)">
+                {{ comp.label }}
+              </a>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
 </div>
