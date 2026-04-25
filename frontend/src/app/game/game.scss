@@ -73,8 +73,8 @@
   gap: 0.3rem;
   min-width: 120px;
   align-items: center;
-  &.away { align-items: flex-end; }
-  &.home { align-items: flex-start; }
+  &.away { align-items: center; }
+  &.home { align-items: center; }
 }
 
 .sb-team-name {
