@@ -163,7 +163,7 @@
   border-radius: 6px;
   overflow: hidden;
   font-size: 0.75rem;
-  width: 100%;
+  min-width: 13rem;
 }
 
 .desktop-only {
@@ -176,6 +176,7 @@
   display: none;
   margin: 0 auto 1rem;
   width: fit-content;
+  min-width: 13rem;
 
   @media (max-width: 600px) {
     display: block;
