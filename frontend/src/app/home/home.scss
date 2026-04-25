@@ -27,12 +27,14 @@
     text-transform: uppercase;
     color: #adb5bd;
     margin: 0 0 0.6rem;
+    text-align: center;
   }
   
   .score-cards {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
+    justify-content: center;
   }
   
   .score-card {
@@ -135,6 +137,7 @@
     text-transform: uppercase;
     color: #adb5bd;
     margin: 0 0 0.75rem;
+    text-align: center;
   }
   
   .loading {
@@ -157,6 +160,7 @@
       font-size: 15px;
       color: #212529;
       text-decoration: none;
+      text-align: center;
       transition: color 0.12s ease;
   
       &:hover { color: #0d6efd; }
