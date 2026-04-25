@@ -100,15 +100,6 @@
 
       @if (awayTeamTotals && homeTeamTotals) {
         <div class="stat-comparison">
-          <div class="stat-comparison-header">
-            <span class="stat-raw away">M/A</span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span class="stat-raw home">M/A</span>
-          </div>
           @for (stat of [
             { label: 'FG%',  away: awayTeamTotals.fg_pct,  home: homeTeamTotals.fg_pct,  isStr: true,  max: 30, awayRaw: awayTeamTotals.fgm + '/' + awayTeamTotals.fga,   homeRaw: homeTeamTotals.fgm + '/' + homeTeamTotals.fga },
             { label: '3P%',  away: awayTeamTotals.fg3_pct, home: homeTeamTotals.fg3_pct, isStr: true,  max: 30, awayRaw: awayTeamTotals.fg3m + '/' + awayTeamTotals.fg3a, homeRaw: homeTeamTotals.fg3m + '/' + homeTeamTotals.fg3a },
@@ -123,12 +114,14 @@
             @let homeNum = stat.isStr ? +stat.home : stat.home;
             @let diff = awayNum - homeNum;
             <div class="stat-row">
-              @if (stat.awayRaw) {
-                <span class="stat-raw away">{{ stat.awayRaw }}</span>
-              } @else {
-                <span></span>
-              }
-              <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
+              <div class="stat-val-group away">
+                <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
+                @if (stat.awayRaw) {
+                  <span class="stat-raw">{{ stat.awayRaw }}</span>
+                } @else {
+                  <span class="stat-raw-placeholder"></span>
+                }
+              </div>
               <span class="stat-label">{{ stat.label }}</span>
               <div class="bar-track">
                 <div class="bar-center-line"></div>
@@ -141,12 +134,14 @@
                 }
               </div>
               <span class="stat-label">{{ stat.label }}</span>
-              <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
-              @if (stat.homeRaw) {
-                <span class="stat-raw home">{{ stat.homeRaw }}</span>
-              } @else {
-                <span></span>
-              }
+              <div class="stat-val-group home">
+                <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
+                @if (stat.homeRaw) {
+                  <span class="stat-raw">{{ stat.homeRaw }}</span>
+                } @else {
+                  <span class="stat-raw-placeholder"></span>
+                }
+              </div>
             </div>
           }
         </div>
