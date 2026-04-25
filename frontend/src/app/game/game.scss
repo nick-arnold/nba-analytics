@@ -245,7 +245,7 @@
 .stat-comparison {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0;
   margin: 0 0 2rem;
   padding: 1.25rem 1.5rem;
   border: 1px solid var(--border);
@@ -257,15 +257,17 @@
   grid-template-columns: 3.5rem 3rem 1fr 3rem 3.5rem;
   align-items: center;
   gap: 0.5rem;
+  height: 2.5rem;
 }
 
 .stat-val-group {
   display: flex;
   flex-direction: column;
-  align-self: center;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
   gap: 0.05rem;
 
-  &.away { align-items: flex-end; }
   &.home { align-items: flex-start; }
 }
 
@@ -294,12 +296,6 @@
   color: var(--text-muted);
   opacity: 0.6;
   line-height: 1.2;
-}
-
-.stat-raw-placeholder {
-  display: block;
-  height: 0.744rem; // matches font-size: 0.62rem * line-height: 1.2
-  visibility: hidden;
 }
 
 .bar-track {
