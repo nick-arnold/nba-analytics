@@ -54,8 +54,28 @@ export class GameComponent implements OnInit {
   get isLive(): boolean {
     if (!this.game?.status) return false;
     if (this.game.status === 'Final') return false;
-    if (this.game.status.includes('T') && this.game.status.includes('Z')) return false;
+    if (this.game.status.startsWith('20')) return false;
     return true;
+  }
+
+  formatTipoff(datetime: string | null): string {
+    if (!datetime) return 'Upcoming';
+    const d = new Date(datetime);
+    return d.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+      hour12: true,
+    });
+  }
+
+  formatClock(clock: string | null): string {
+    if (!clock) return '';
+    if (clock.includes(':')) return clock;
+    const secs = Math.floor(parseFloat(clock));
+    const m = Math.floor(secs / 60);
+    const s = String(secs % 60).padStart(2, '0');
+    return `${m}:${s}`;
   }
 
   buildChart() {
@@ -147,10 +167,7 @@ export class GameComponent implements OnInit {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false,
-        },
+        interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: {
             display: true,
@@ -180,31 +197,16 @@ export class GameComponent implements OnInit {
           }
         },
         scales: {
-          x: {
-            display: false,
-          },
+          x: { display: false },
           y: {
             beginAtZero: true,
-            grid: {
-              color: 'rgba(0,0,0,0.05)',
-            },
-            ticks: {
-              font: { size: 11 },
-            }
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: { font: { size: 11 } }
           }
         }
       },
       plugins: [quarterPlugin],
     });
-  }
-
-  formatClock(clock: string): string {
-    if (!clock) return '';
-    if (clock.includes(':')) return clock;
-    const secs = Math.floor(parseFloat(clock));
-    const m = Math.floor(secs / 60);
-    const s = String(secs % 60).padStart(2, '0');
-    return `${m}:${s}`;
   }
 
   get homeTeamTotals() {

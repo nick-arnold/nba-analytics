@@ -108,6 +108,10 @@ class GameDetailSerializer(serializers.ModelSerializer):
     away_team = TeamSerializer(read_only=True)
     home_box_score = serializers.SerializerMethodField()
     away_box_score = serializers.SerializerMethodField()
+    series_record = serializers.SerializerMethodField()
+    quarter_scores = serializers.SerializerMethodField()
+    current_clock = serializers.SerializerMethodField()
+    current_period = serializers.SerializerMethodField()
 
     class Meta:
         model = Game
@@ -115,8 +119,91 @@ class GameDetailSerializer(serializers.ModelSerializer):
             'id', 'nba_game_id', 'game_date', 'game_datetime', 'status',
             'season', 'game_type', 'postseason',
             'home_team', 'away_team', 'home_score', 'away_score',
+            'series_record', 'quarter_scores', 'current_clock', 'current_period',
             'home_box_score', 'away_box_score',
         ]
+
+    def get_series_record(self, obj):
+        if obj.game_type != 'playoff':
+            return None
+        games = Game.objects.filter(
+            season=obj.season,
+            game_type='playoff',
+            home_score__isnull=False,
+        ).filter(
+            Q(home_team=obj.home_team, away_team=obj.away_team) |
+            Q(home_team=obj.away_team, away_team=obj.home_team)
+        )
+        home_wins = 0
+        away_wins = 0
+        for g in games:
+            if g.home_score is None or g.away_score is None:
+                continue
+            if g.home_score > g.away_score:
+                if g.home_team_id == obj.home_team_id:
+                    home_wins += 1
+                else:
+                    away_wins += 1
+            else:
+                if g.away_team_id == obj.away_team_id:
+                    away_wins += 1
+                else:
+                    home_wins += 1
+        if home_wins == 0 and away_wins == 0:
+            return None
+        if home_wins > away_wins:
+            return f"{obj.home_team.abbreviation} leads {home_wins}-{away_wins}"
+        elif away_wins > home_wins:
+            return f"{obj.away_team.abbreviation} leads {away_wins}-{home_wins}"
+        else:
+            return f"Series tied {home_wins}-{away_wins}"
+
+    def get_quarter_scores(self, obj):
+        plays = obj.plays.filter(
+            scoring_play=True
+        ).order_by('order')
+
+        if not plays.exists():
+            return None
+
+        # Get the score at the end of each period
+        periods = sorted(set(plays.values_list('period', flat=True)))
+        away_quarters = []
+        home_quarters = []
+        prev_away = 0
+        prev_home = 0
+
+        for period in periods:
+            last_play = plays.filter(period=period).last()
+            if last_play:
+                away_q = last_play.away_score - prev_away
+                home_q = last_play.home_score - prev_home
+                away_quarters.append(away_q)
+                home_quarters.append(home_q)
+                prev_away = last_play.away_score
+                prev_home = last_play.home_score
+
+        return {
+            'periods': periods,
+            'away': away_quarters,
+            'home': home_quarters,
+        }
+
+    def get_current_clock(self, obj):
+        if obj.status == 'Final' or not obj.status:
+            return None
+        if obj.status.startswith('20'):
+            return None
+        play = obj.plays.order_by('-order').first()
+        return play.clock if play else None
+
+    def get_current_period(self, obj):
+        if obj.status == 'Final' or not obj.status:
+            return None
+        if obj.status.startswith('20'):
+            return None
+        play = obj.plays.order_by('-order').first()
+        return play.period if play else None
 
     def get_home_box_score(self, obj):
         stats = PlayerStat.objects.select_related('player', 'team').filter(
