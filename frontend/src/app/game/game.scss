@@ -72,7 +72,7 @@
   flex-direction: column;
   gap: 0.3rem;
   min-width: 120px;
-
+  align-items: center;
   &.away { align-items: flex-end; }
   &.home { align-items: flex-start; }
 }
@@ -83,7 +83,7 @@
   color: var(--text-muted);
   text-decoration: none;
   line-height: 1.3;
-
+  text-align: center;
   &:hover { text-decoration: underline; }
 
   @media (max-width: 600px) {
