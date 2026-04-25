@@ -174,7 +174,8 @@
 
 .mobile-only {
   display: none;
-  margin: 0 1rem 1rem;
+  margin: 0 auto 1rem;
+  width: fit-content;
 
   @media (max-width: 600px) {
     display: block;
@@ -183,7 +184,7 @@
 
 .qg-header {
   display: grid;
-  grid-template-columns: 2.5rem repeat(auto-fill, minmax(1.75rem, 1fr));
+  grid-template-columns: 3rem repeat(auto-fill, minmax(1.75rem, 1fr));
   background: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
   padding: 0.25rem 0.5rem;
@@ -198,7 +199,7 @@
 
 .qg-row {
   display: grid;
-  grid-template-columns: 2.5rem repeat(auto-fill, minmax(1.75rem, 1fr));
+  grid-template-columns: 3rem repeat(auto-fill, minmax(1.75rem, 1fr));
   padding: 0.3rem 0.5rem;
   text-align: center;
 
@@ -272,6 +273,11 @@
   grid-template-columns: 3rem 3rem 3rem 1fr 3rem 3rem 3rem;
   align-items: center;
   gap: 0.4rem;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 2.5rem 2rem 2rem 1fr 2rem 2rem 2.5rem;
+    gap: 0.25rem;
+  }
 }
 
 .stat-val {
