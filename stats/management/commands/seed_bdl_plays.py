@@ -8,7 +8,7 @@ from stats.models import PlayByPlay
 
 
 class Command(BaseCommand):
-    help = 'Seed play-by-play data from BallDontLie API'
+    help = 'Seed all play-by-play data from BallDontLie API (makes, misses, and all events)'
 
     def add_arguments(self, parser):
         parser.add_argument('--game-id', type=str, help='Specific nba_game_id to seed')
@@ -95,4 +95,4 @@ class Command(BaseCommand):
             if was_created:
                 created += 1
 
-        self.stdout.write(f'  {game.nba_game_id} — {created} new plays ({len(plays)} total)')
+        self.stdout.write(f'  {game.nba_game_id} — {created} new plays ingested ({len(plays)} total plays in response)')
