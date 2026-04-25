@@ -39,33 +39,33 @@
           </div>
 
           @if (game.quarter_scores) {
-            <div class="quarter-grid desktop-only">
-              <div class="qg-header">
-                <span></span>
-                @for (p of game.quarter_scores.periods; track p) {
-                  <span>{{ p <= 4 ? p : 'OT' }}</span>
-                }
-                <span>T</span>
-              </div>
-              <div class="qg-row">
-                <span class="qg-abbr">{{ game.away_team.abbreviation }}</span>
-                @for (score of game.quarter_scores.away; track $index) {
-                  <span>{{ score }}</span>
-                }
-                <span class="qg-total" [class.winner]="game.away_score > game.home_score">
-                  {{ game.away_score }}
-                </span>
-              </div>
-              <div class="qg-row">
-                <span class="qg-abbr">{{ game.home_team.abbreviation }}</span>
-                @for (score of game.quarter_scores.home; track $index) {
-                  <span>{{ score }}</span>
-                }
-                <span class="qg-total" [class.winner]="game.home_score > game.away_score">
-                  {{ game.home_score }}
-                </span>
-              </div>
-            </div>
+            <table class="qg-table desktop-only">
+              <thead>
+                <tr>
+                  <th></th>
+                  @for (p of game.quarter_scores.periods; track p) {
+                    <th>{{ p <= 4 ? p : 'OT' }}</th>
+                  }
+                  <th>T</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="qg-abbr">{{ game.away_team.abbreviation }}</td>
+                  @for (score of game.quarter_scores.away; track $index) {
+                    <td>{{ score }}</td>
+                  }
+                  <td class="qg-total" [class.winner]="game.away_score > game.home_score">{{ game.away_score }}</td>
+                </tr>
+                <tr>
+                  <td class="qg-abbr">{{ game.home_team.abbreviation }}</td>
+                  @for (score of game.quarter_scores.home; track $index) {
+                    <td>{{ score }}</td>
+                  }
+                  <td class="qg-total" [class.winner]="game.home_score > game.away_score">{{ game.home_score }}</td>
+                </tr>
+              </tbody>
+            </table>
           }
 
           @if (!game.series_record) {
@@ -84,32 +84,34 @@
       </div>
 
       @if (game.quarter_scores) {
-        <div class="quarter-grid mobile-only">
-          <div class="qg-header">
-            <span></span>
-            @for (p of game.quarter_scores.periods; track p) {
-              <span>{{ p <= 4 ? p : 'OT' }}</span>
-            }
-            <span>T</span>
-          </div>
-          <div class="qg-row">
-            <span class="qg-abbr">{{ game.away_team.abbreviation }}</span>
-            @for (score of game.quarter_scores.away; track $index) {
-              <span>{{ score }}</span>
-            }
-            <span class="qg-total" [class.winner]="game.away_score > game.home_score">
-              {{ game.away_score }}
-            </span>
-          </div>
-          <div class="qg-row">
-            <span class="qg-abbr">{{ game.home_team.abbreviation }}</span>
-            @for (score of game.quarter_scores.home; track $index) {
-              <span>{{ score }}</span>
-            }
-            <span class="qg-total" [class.winner]="game.home_score > game.away_score">
-              {{ game.home_score }}
-            </span>
-          </div>
+        <div class="mobile-only">
+          <table class="qg-table">
+            <thead>
+              <tr>
+                <th></th>
+                @for (p of game.quarter_scores.periods; track p) {
+                  <th>{{ p <= 4 ? p : 'OT' }}</th>
+                }
+                <th>T</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="qg-abbr">{{ game.away_team.abbreviation }}</td>
+                @for (score of game.quarter_scores.away; track $index) {
+                  <td>{{ score }}</td>
+                }
+                <td class="qg-total" [class.winner]="game.away_score > game.home_score">{{ game.away_score }}</td>
+              </tr>
+              <tr>
+                <td class="qg-abbr">{{ game.home_team.abbreviation }}</td>
+                @for (score of game.quarter_scores.home; track $index) {
+                  <td>{{ score }}</td>
+                }
+                <td class="qg-total" [class.winner]="game.home_score > game.away_score">{{ game.home_score }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       }
 
