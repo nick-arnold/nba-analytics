@@ -8,7 +8,7 @@ from stats.models import PlayByPlay
 
 
 class Command(BaseCommand):
-    help = 'Seed scoring play-by-play data from BallDontLie API'
+    help = 'Seed play-by-play data from BallDontLie API'
 
     def add_arguments(self, parser):
         parser.add_argument('--game-id', type=str, help='Specific nba_game_id to seed')
@@ -51,16 +51,15 @@ class Command(BaseCommand):
 
         data = r.json()
         plays = data.get('data', [])
-        scoring_plays = [p for p in plays if p.get('scoring_play')]
 
-        if not scoring_plays:
-            self.stdout.write(f'  No scoring plays for {game.nba_game_id}')
+        if not plays:
+            self.stdout.write(f'  No plays for {game.nba_game_id}')
             return
 
         team_cache = {t.abbreviation: t for t in game.home_team.__class__.objects.all()}
 
         created = 0
-        for p in scoring_plays:
+        for p in plays:
             team_abbr = p.get('team', {}).get('abbreviation') if p.get('team') else None
             team = team_cache.get(team_abbr) if team_abbr else None
 
@@ -86,7 +85,7 @@ class Command(BaseCommand):
                     'team': team,
                     'home_score': p.get('home_score'),
                     'away_score': p.get('away_score'),
-                    'scoring_play': True,
+                    'scoring_play': p.get('scoring_play', False),
                     'score_value': p.get('score_value'),
                     'wallclock': wallclock,
                     'coordinate_x': coord_x,
@@ -96,4 +95,4 @@ class Command(BaseCommand):
             if was_created:
                 created += 1
 
-        self.stdout.write(f'  {game.nba_game_id} — {created} new scoring plays ({len(scoring_plays)} total)')
+        self.stdout.write(f'  {game.nba_game_id} — {created} new plays ({len(plays)} total)')
