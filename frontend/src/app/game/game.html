@@ -142,8 +142,8 @@
             @let homeNum = stat.isStr ? +stat.home : stat.home;
             @let diff = awayNum - homeNum;
             <div class="stat-row">
-              <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
               <span class="stat-raw away">{{ stat.awayRaw ?? '' }}</span>
+              <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
               <span class="stat-label">{{ stat.label }}</span>
               <div class="bar-track">
                 <div class="bar-center-line"></div>
@@ -156,8 +156,8 @@
                 }
               </div>
               <span class="stat-label">{{ stat.label }}</span>
-              <span class="stat-raw home">{{ stat.homeRaw ?? '' }}</span>
               <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
+              <span class="stat-raw home">{{ stat.homeRaw ?? '' }}</span>
             </div>
           }
         </div>
