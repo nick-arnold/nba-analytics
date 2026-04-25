@@ -117,7 +117,7 @@
               <div class="stat-val-group away">
                 <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
                 <span class="stat-raw" [style.visibility]="stat.awayRaw ? 'visible' : 'hidden'">
-                  {{ stat.awayRaw ?? '0/0' }}
+                  {{ stat.awayRaw ? stat.awayRaw : '0/0' }}
                 </span>
               </div>
               <span class="stat-label">{{ stat.label }}</span>
@@ -135,7 +135,7 @@
               <div class="stat-val-group home">
                 <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
                 <span class="stat-raw" [style.visibility]="stat.homeRaw ? 'visible' : 'hidden'">
-                  {{ stat.homeRaw ?? '0/0' }}
+                  {{ stat.homeRaw ? stat.homeRaw : '0/0' }}
                 </span>
               </div>
             </div>
