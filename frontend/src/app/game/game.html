@@ -39,7 +39,7 @@
           </div>
 
           @if (game.quarter_scores) {
-            <div class="quarter-grid">
+            <div class="quarter-grid desktop-only">
               <div class="qg-header">
                 <span></span>
                 @for (p of game.quarter_scores.periods; track p) {
@@ -47,7 +47,6 @@
                 }
                 <span>T</span>
               </div>
-
               <div class="qg-row">
                 <span class="qg-abbr">{{ game.away_team.abbreviation }}</span>
                 @for (score of game.quarter_scores.away; track $index) {
@@ -57,7 +56,6 @@
                   {{ game.away_score }}
                 </span>
               </div>
-
               <div class="qg-row">
                 <span class="qg-abbr">{{ game.home_team.abbreviation }}</span>
                 @for (score of game.quarter_scores.home; track $index) {
@@ -84,6 +82,36 @@
           </a>
         </div>
       </div>
+
+      @if (game.quarter_scores) {
+        <div class="quarter-grid mobile-only">
+          <div class="qg-header">
+            <span></span>
+            @for (p of game.quarter_scores.periods; track p) {
+              <span>{{ p <= 4 ? p : 'OT' }}</span>
+            }
+            <span>T</span>
+          </div>
+          <div class="qg-row">
+            <span class="qg-abbr">{{ game.away_team.abbreviation }}</span>
+            @for (score of game.quarter_scores.away; track $index) {
+              <span>{{ score }}</span>
+            }
+            <span class="qg-total" [class.winner]="game.away_score > game.home_score">
+              {{ game.away_score }}
+            </span>
+          </div>
+          <div class="qg-row">
+            <span class="qg-abbr">{{ game.home_team.abbreviation }}</span>
+            @for (score of game.quarter_scores.home; track $index) {
+              <span>{{ score }}</span>
+            }
+            <span class="qg-total" [class.winner]="game.home_score > game.away_score">
+              {{ game.home_score }}
+            </span>
+          </div>
+        </div>
+      }
 
     </div>
 
@@ -114,12 +142,8 @@
             @let homeNum = stat.isStr ? +stat.home : stat.home;
             @let diff = awayNum - homeNum;
             <div class="stat-row">
-              <div class="stat-val-group away">
-                <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
-                <span class="stat-raw" [style.visibility]="stat.awayRaw ? 'visible' : 'hidden'">
-                  {{ stat.awayRaw ? stat.awayRaw : '0/0' }}
-                </span>
-              </div>
+              <span class="stat-val away" [class.leader]="diff > 0">{{ stat.away }}</span>
+              <span class="stat-raw away">{{ stat.awayRaw ?? '' }}</span>
               <span class="stat-label">{{ stat.label }}</span>
               <div class="bar-track">
                 <div class="bar-center-line"></div>
@@ -132,12 +156,8 @@
                 }
               </div>
               <span class="stat-label">{{ stat.label }}</span>
-              <div class="stat-val-group home">
-                <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
-                <span class="stat-raw" [style.visibility]="stat.homeRaw ? 'visible' : 'hidden'">
-                  {{ stat.homeRaw ? stat.homeRaw : '0/0' }}
-                </span>
-              </div>
+              <span class="stat-raw home">{{ stat.homeRaw ?? '' }}</span>
+              <span class="stat-val home" [class.leader]="diff < 0">{{ stat.home }}</span>
             </div>
           }
         </div>
