@@ -8,11 +8,10 @@ from stats.models import PlayByPlay
 
 
 class Command(BaseCommand):
-    help = 'Seed scoring play-by-play data from BallDontLie API'
+    help = 'Seed all play-by-play data from BallDontLie API (makes, misses, and all events)'
 
     def add_arguments(self, parser):
         parser.add_argument('--game-id', type=str, help='Specific nba_game_id to seed')
-        parser.add_argument('--game-ids', nargs='+', type=str, help='Multiple nba_game_ids to seed')
         parser.add_argument('--season', type=int, help='Seed all games for a season')
         parser.add_argument('--postseason', action='store_true', help='Postseason games only')
 
@@ -22,8 +21,6 @@ class Command(BaseCommand):
 
         if options['game_id']:
             games = Game.objects.filter(nba_game_id=options['game_id'])
-        elif options.get('game_ids'):
-            games = Game.objects.filter(nba_game_id__in=options['game_ids'])
         elif options['season']:
             season_str = f"{options['season']}-{str(options['season']+1)[-2:]}"
             games = Game.objects.filter(
@@ -33,7 +30,7 @@ class Command(BaseCommand):
             if options['postseason']:
                 games = games.filter(game_type='playoff')
         else:
-            self.stdout.write('Provide --game-id, --game-ids, or --season')
+            self.stdout.write('Provide --game-id or --season')
             return
 
         self.stdout.write(f'Seeding plays for {games.count()} games...')
@@ -54,16 +51,15 @@ class Command(BaseCommand):
 
         data = r.json()
         plays = data.get('data', [])
-        shooting_plays = [p for p in plays if p.get('scoring_play') or p.get('shooting_play')]
 
-        if not shooting_plays:
-            self.stdout.write(f'  No shooting plays for {game.nba_game_id}')
+        if not plays:
+            self.stdout.write(f'  No plays for {game.nba_game_id}')
             return
 
-        team_cache = {t.abbreviation: t for t in Team.objects.all()}
+        team_cache = {t.abbreviation: t for t in game.home_team.__class__.objects.all()}
 
         created = 0
-        for p in shooting_plays:
+        for p in plays:
             team_abbr = p.get('team', {}).get('abbreviation') if p.get('team') else None
             team = team_cache.get(team_abbr) if team_abbr else None
 
@@ -99,4 +95,4 @@ class Command(BaseCommand):
             if was_created:
                 created += 1
 
-        self.stdout.write(f'  {game.nba_game_id} — {created} new plays ({len(shooting_plays)} total)')
+        self.stdout.write(f'  {game.nba_game_id} — {created} new plays ingested ({len(plays)} total plays in response)')
