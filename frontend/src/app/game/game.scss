@@ -427,11 +427,6 @@
   border-bottom: none;
 }
 
-.table-scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  width: 100%;
-}
 
 @media (max-width: 600px) {
   .data-table {
