@@ -21,6 +21,8 @@ class GameSerializer(serializers.ModelSerializer):
     )
     series_record = serializers.SerializerMethodField()
     margin = serializers.SerializerMethodField()
+    current_clock = serializers.SerializerMethodField()
+    current_period = serializers.SerializerMethodField()
 
     class Meta:
         model = Game
@@ -65,6 +67,18 @@ class GameSerializer(serializers.ModelSerializer):
         if obj.home_score is None or obj.away_score is None:
             return None
         return abs(obj.home_score - obj.away_score)
+
+    def get_current_clock(self, obj):
+        if obj.status == 'Final' or not obj.status:
+            return None
+        play = obj.plays.order_by('-order').first()
+        return play.clock if play else None
+
+    def get_current_period(self, obj):
+        if obj.status == 'Final' or not obj.status:
+            return None
+        play = obj.plays.order_by('-order').first()
+        return play.period if play else None
 
 
 class BoxScorePlayerSerializer(serializers.ModelSerializer):

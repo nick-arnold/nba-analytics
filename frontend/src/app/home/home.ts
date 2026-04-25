@@ -113,15 +113,29 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  formatClock(clock: string): string {
+    if (!clock) return '';
+    if (clock.includes(':')) return clock;
+    const secs = Math.floor(parseFloat(clock));
+    const m = Math.floor(secs / 60);
+    const s = String(secs % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  formatGameClock(game: any): string {
+    if (!game.current_period || !game.current_clock) return game.status;
+    const period = game.current_period <= 4
+      ? `Q${game.current_period}`
+      : `OT${game.current_period - 4}`;
+    const clock = this.formatClock(game.current_clock);
+    return `${period} · ${clock}`;
+  }
+
   gameStatus(game: any): 'upcoming' | 'live' | 'final' {
     if (!game.status) return game.home_score !== null ? 'final' : 'upcoming';
     if (game.status === 'Final') return 'final';
     if (game.status.includes('T') && game.status.includes('Z')) return 'upcoming';
     return 'live';
-  }
-
-  liveLabel(status: string): string {
-    return status;
   }
 
   teamColor(abbr: string): string {

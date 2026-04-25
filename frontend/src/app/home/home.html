@@ -49,7 +49,7 @@
                     @if (status === 'upcoming') {
                       <span class="score-card-status">{{ formatTipoff(game.game_datetime) }}</span>
                     } @else if (status === 'live') {
-                      <span class="score-card-status live-status">{{ game.status }}</span>
+                      <span class="score-card-status live-status">{{ formatGameClock(game) }}</span>
                     } @else {
                       <span class="score-card-status">Final</span>
                     }
