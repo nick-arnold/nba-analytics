@@ -298,7 +298,8 @@
 
 .stat-raw-placeholder {
   display: block;
-  height: 0.62rem;
+  height: 0.744rem; // matches font-size: 0.62rem * line-height: 1.2
+  visibility: hidden;
 }
 
 .bar-track {
