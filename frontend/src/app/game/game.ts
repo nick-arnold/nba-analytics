@@ -41,6 +41,12 @@ const TEAM_COLORS: Record<string, { primary: string; secondary: string }> = {
   WAS: { primary: '#002B5C', secondary: '#E31837' },
 };
 
+const LIGHT_TEAM_HIGHLIGHT: Record<string, string> = {
+  SAS: '#5a6472',
+};
+
+const MIN_SCORER_PTS = 1;
+
 @Component({
   selector: 'app-game',
   standalone: true,
@@ -53,6 +59,9 @@ export class GameComponent implements OnInit {
 
   game: any = null;
   scoringPlays: any[] = [];
+  segments: any[] = [];
+  segmentPlayerStats: any[] = [];
+  selectedSegment: any = null;
   loading = true;
   error = false;
   chart: any = null;
@@ -69,10 +78,14 @@ export class GameComponent implements OnInit {
     forkJoin({
       game: this.http.get(`/api/games/games/by-nba-id/${nbaGameId}/`),
       plays: this.http.get(`/api/stats/scoring-plays/?game_id=${nbaGameId}`),
+      segments: this.http.get(`/api/stats/game-segments/?game_id=${nbaGameId}`),
+      segmentStats: this.http.get(`/api/stats/segment-player-stats/?game_id=${nbaGameId}`),
     }).subscribe({
       next: (results: any) => {
         this.game = results.game;
         this.scoringPlays = results.plays.plays || [];
+        this.segments = results.segments.segments || [];
+        this.segmentPlayerStats = results.segmentStats.segments || [];
         this.loading = false;
         this.cdr.detectChanges();
         setTimeout(() => this.buildChart(), 50);
@@ -87,6 +100,10 @@ export class GameComponent implements OnInit {
 
   teamColor(abbr: string, which: 'primary' | 'secondary' = 'primary'): string {
     return TEAM_COLORS[abbr]?.[which] ?? '#888888';
+  }
+
+  private highlightColor(abbr: string): string {
+    return LIGHT_TEAM_HIGHLIGHT[abbr] ?? this.teamColor(abbr);
   }
 
   get isLive(): boolean {
@@ -116,6 +133,72 @@ export class GameComponent implements OnInit {
     return `${m}:${s}`;
   }
 
+  // ── Segment helpers ──────────────────────────────────────────────────────
+
+  isSelected(seg: any): boolean {
+    return this.selectedSegment?.id === seg.id;
+  }
+
+  segmentPillColor(seg: any): string {
+    if (!seg.dominant_team_abbreviation) return 'rgba(150,150,150,0.5)';
+    return this.hexToRgba(this.highlightColor(seg.dominant_team_abbreviation), 0.6);
+  }
+
+  segmentLabel(seg: any): string {
+    const labels: Record<string, string> = {
+      BACK_AND_FORTH: 'Back & Forth',
+      RUN: 'Run',
+      BLOWOUT: 'Blowout',
+      TIGHT: 'Tight',
+    };
+    const type = labels[seg.segment_type] ?? seg.segment_type;
+    if (seg.dominant_team_abbreviation) return `${seg.dominant_team_abbreviation} ${type}`;
+    return type;
+  }
+
+  selectSegment(seg: any) {
+    this.selectedSegment = this.selectedSegment?.id === seg.id ? null : seg;
+    if (this.chart) this.chart.update();
+  }
+
+  // ── Scorer lines ─────────────────────────────────────────────────────────
+
+  get showScorerLines(): boolean {
+    return !!this.selectedSegment;
+  }
+
+  private get activeSegmentStats(): any[] {
+    if (!this.selectedSegment) return [];
+    return this.segmentPlayerStats.filter(s => s.segment_id === this.selectedSegment.id);
+  }
+
+  scorerLine(teamAbbr: string): string {
+    const combined: Record<number, { name: string; pts: number }> = {};
+    for (const seg of this.activeSegmentStats) {
+      for (const scorer of seg.scorers) {
+        if (scorer.team !== teamAbbr) continue;
+        if (!combined[scorer.player_id]) {
+          combined[scorer.player_id] = { name: scorer.name, pts: 0 };
+        }
+        combined[scorer.player_id].pts += scorer.pts;
+      }
+    }
+    return Object.values(combined)
+      .filter(s => s.pts >= MIN_SCORER_PTS)
+      .sort((a, b) => b.pts - a.pts)
+      .map(s => `${s.name.split(' ').pop()} ${s.pts}`)
+      .join(', ') || '—';
+  }
+
+  private hexToRgba(hex: string, alpha: number): string {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  // ── Chart ────────────────────────────────────────────────────────────────
+
   buildChart() {
     if (!this.scoreChartRef || !this.scoringPlays.length) return;
 
@@ -123,12 +206,17 @@ export class GameComponent implements OnInit {
     const homeAbbr = this.game.home_team.abbreviation;
     const awayAbbr = this.game.away_team.abbreviation;
     const isLive = this.isLive;
+    const segments = this.segments;
 
     const awayColor = this.teamColor(awayAbbr);
     const homeColor = this.teamColor(homeAbbr);
 
     const homePoints = [0, ...plays.map((p: any) => p.home_score)];
     const awayPoints = [0, ...plays.map((p: any) => p.away_score)];
+
+    const orderToIndex: Record<number, number> = {};
+    plays.forEach((p: any, i: number) => { orderToIndex[p.order] = i + 1; });
+    const totalPoints = plays.length + 1;
 
     const quarterLines: number[] = [];
     let lastPeriod = 1;
@@ -140,6 +228,46 @@ export class GameComponent implements OnInit {
     });
 
     const periodsPresent = [...new Set(plays.map((p: any) => p.period))].sort();
+    const self = this;
+
+    const segmentBandPlugin = {
+      id: 'segmentBands',
+      beforeDatasetsDraw: (chart: any) => {
+        if (!segments.length) return;
+        const ctx = chart.ctx;
+        const xAxis = chart.scales.x;
+        const yAxis = chart.scales.y;
+
+        const chartLeft = xAxis.getPixelForValue(0);
+        const chartRight = xAxis.getPixelForValue(totalPoints - 1);
+        const y1 = yAxis.top;
+        const height = yAxis.bottom - yAxis.top;
+
+        // Step 1: Draw full-width neutral background — no gaps possible
+        ctx.save();
+        ctx.fillStyle = 'rgba(150,150,150,0.1)';
+        ctx.fillRect(chartLeft, y1, chartRight - chartLeft, height);
+        ctx.restore();
+
+        // Step 2: If a segment is selected, draw team color over just that region
+        if (self.selectedSegment) {
+          const seg = self.selectedSegment;
+          const startIdx = orderToIndex[seg.start_order] ?? 0;
+          const endIdx = orderToIndex[seg.end_order] ?? totalPoints - 1;
+          const x1 = xAxis.getPixelForValue(startIdx);
+          const x2 = xAxis.getPixelForValue(endIdx);
+
+          const hex = seg.dominant_team_abbreviation
+            ? self.highlightColor(seg.dominant_team_abbreviation)
+            : '#888888';
+
+          ctx.save();
+          ctx.fillStyle = self.hexToRgba(hex, 0.22);
+          ctx.fillRect(x1, y1, x2 - x1, height);
+          ctx.restore();
+        }
+      }
+    };
 
     const quarterPlugin = {
       id: 'quarterLines',
@@ -178,7 +306,9 @@ export class GameComponent implements OnInit {
 
     if (this.chart) this.chart.destroy();
 
-    this.chart = new Chart(this.scoreChartRef.nativeElement, {
+    const canvas = this.scoreChartRef.nativeElement;
+
+    this.chart = new Chart(canvas, {
       type: 'line',
       data: {
         labels: homePoints.map((_: any, i: number) => i),
@@ -209,6 +339,25 @@ export class GameComponent implements OnInit {
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
+        onClick: (_event: any, _elements: any, chart: any) => {
+          if (!segments.length) return;
+          const xAxis = chart.scales.x;
+          const canvasRect = canvas.getBoundingClientRect();
+          const mouseX = _event.native.clientX - canvasRect.left;
+          const clickedIndex = Math.round(xAxis.getValueForPixel(mouseX));
+
+          const clickedSeg = segments.find((seg: any) => {
+            const startIdx = orderToIndex[seg.start_order] ?? 0;
+            const endIdx = orderToIndex[seg.end_order] ?? totalPoints - 1;
+            return clickedIndex >= startIdx && clickedIndex <= endIdx;
+          });
+
+          if (clickedSeg) {
+            self.selectedSegment = self.selectedSegment?.id === clickedSeg.id ? null : clickedSeg;
+            self.cdr.detectChanges();
+            chart.update();
+          }
+        },
         plugins: {
           legend: {
             display: true,
@@ -246,7 +395,7 @@ export class GameComponent implements OnInit {
           }
         }
       },
-      plugins: [quarterPlugin],
+      plugins: [segmentBandPlugin, quarterPlugin],
     });
   }
 

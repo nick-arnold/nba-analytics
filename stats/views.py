@@ -4,12 +4,14 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models import Sum, Count
-from .models import PlayByPlay, PlayerStat, PlayerSeasonStats, PlayerGameLog
+from .models import PlayByPlay, PlayerStat, PlayerSeasonStats, PlayerGameLog, GameSegment, GameKeyEvent
 from .serializers import (
     PlayByPlaySerializer, PlayerStatSerializer,
-    PlayerSeasonStatsSerializer, PlayerGameLogSerializer
+    PlayerSeasonStatsSerializer, PlayerGameLogSerializer,
+    GameSegmentSerializer,
 )
 from games.models import Game
+from players.models import Player
 
 
 class PlayerStatViewSet(viewsets.ModelViewSet):
@@ -84,6 +86,117 @@ def scoring_plays(request):
 
 
 @api_view(['GET'])
+def game_segments(request):
+    """
+    Returns all segments and key events for a game.
+    Query params: game_id (nba_game_id)
+    """
+    nba_game_id = request.query_params.get('game_id')
+    if not nba_game_id:
+        return Response({'error': 'game_id required'}, status=400)
+    try:
+        game = Game.objects.select_related('home_team', 'away_team').get(nba_game_id=nba_game_id)
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found'}, status=404)
+
+    segments = GameSegment.objects.filter(game=game).prefetch_related('key_events').order_by('sequence')
+
+    return Response({
+        'game_id': nba_game_id,
+        'home_team': game.home_team.abbreviation,
+        'away_team': game.away_team.abbreviation,
+        'segments': GameSegmentSerializer(segments, many=True).data,
+    })
+
+
+@api_view(['GET'])
+def segment_player_stats(request):
+    """
+    Returns player scoring aggregated per segment for a game.
+    Derives stats from play-by-play participants — no stored aggregates.
+
+    Query params:
+        game_id     — nba_game_id (required)
+        segment_id  — optional, filter to a single segment
+    """
+    nba_game_id = request.query_params.get('game_id')
+    segment_id = request.query_params.get('segment_id')
+
+    if not nba_game_id:
+        return Response({'error': 'game_id required'}, status=400)
+    try:
+        game = Game.objects.select_related('home_team', 'away_team').get(nba_game_id=nba_game_id)
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found'}, status=404)
+
+    segments_qs = GameSegment.objects.filter(game=game).order_by('sequence')
+    if segment_id:
+        segments_qs = segments_qs.filter(id=segment_id)
+
+    # Fetch all scoring plays for the game once
+    all_scoring_plays = list(
+        PlayByPlay.objects.filter(game=game, scoring_play=True)
+        .select_related('team')
+        .order_by('order')
+    )
+
+    # Build player name lookup from DB
+    participant_ids = set()
+    for p in all_scoring_plays:
+        if p.participants:
+            participant_ids.update(p.participants)
+
+    player_name_lookup = {
+        p.bdl_player_id: p.full_name
+        for p in Player.objects.filter(bdl_player_id__in=participant_ids)
+    }
+
+    # Derive team from the play's team FK — always populated at ingest
+    player_team_lookup = {}
+    for p in all_scoring_plays:
+        if p.participants and p.team:
+            player_team_lookup[p.participants[0]] = p.team.abbreviation
+
+    result = []
+    for seg in segments_qs:
+        window = [
+            p for p in all_scoring_plays
+            if seg.start_order <= p.order <= seg.end_order
+            and p.participants
+        ]
+
+        player_pts = {}
+        for p in window:
+            pid = p.participants[0]
+            player_pts[pid] = player_pts.get(pid, 0) + (p.score_value or 0)
+
+        scorers = [
+            {
+                'player_id': pid,
+                'name': player_name_lookup.get(pid, f'player#{pid}'),
+                'team': player_team_lookup.get(pid),
+                'pts': pts,
+            }
+            for pid, pts in sorted(player_pts.items(), key=lambda x: x[1], reverse=True)
+        ]
+
+        result.append({
+            'segment_id': seg.id,
+            'sequence': seg.sequence,
+            'segment_type': seg.segment_type,
+            'dominant_team': seg.dominant_team.abbreviation if seg.dominant_team else None,
+            'scorers': scorers,
+        })
+
+    return Response({
+        'game_id': nba_game_id,
+        'home_team': game.home_team.abbreviation,
+        'away_team': game.away_team.abbreviation,
+        'segments': result,
+    })
+
+
+@api_view(['GET'])
 def league_tov_avg(request):
     season = request.query_params.get('season', '2025-26')
     stats = PlayerStat.objects.filter(
@@ -113,6 +226,7 @@ def league_tov_avg(request):
         'league_avg_tov_per_game': avg_tov_per_game
     })
 
+
 @api_view(['GET'])
 def shot_chart(request):
     nba_game_id = request.query_params.get('game_id')
@@ -126,7 +240,7 @@ def shot_chart(request):
     from django.db.models import Q
     shot_filter = (
         Q(event_type__icontains='shot') | Q(event_type__icontains='layup')
-        ) & ~Q(event_type__icontains='turnover') & ~Q(event_type__icontains='foul')
+    ) & ~Q(event_type__icontains='turnover') & ~Q(event_type__icontains='foul')
 
     shots = PlayByPlay.objects.filter(
         game=game,

@@ -10,6 +10,7 @@ class PlayByPlay(models.Model):
     clock = models.CharField(max_length=20)
     event_type = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    participants = models.JSONField(default=list)
     team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='plays')
     home_score = models.IntegerField(null=True, blank=True)
     away_score = models.IntegerField(null=True, blank=True)
@@ -25,6 +26,95 @@ class PlayByPlay(models.Model):
 
     def __str__(self):
         return f"{self.game} - {self.period} - {self.order}"
+
+
+class GameSegment(models.Model):
+    SEGMENT_TYPES = [
+        ('BACK_AND_FORTH', 'Back and Forth'),
+        ('RUN', 'Run'),
+        ('BLOWOUT', 'Blowout'),
+        ('TIGHT', 'Tight'),
+    ]
+
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='segments')
+    dominant_team = models.ForeignKey(
+        Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='dominant_segments'
+    )
+
+    segment_type = models.CharField(max_length=20, choices=SEGMENT_TYPES)
+    sequence = models.PositiveSmallIntegerField()  # ordering within the game
+
+    # Boundaries (play order from PlayByPlay)
+    start_order = models.IntegerField()
+    end_order = models.IntegerField()
+
+    # Game clock context
+    start_period = models.IntegerField()
+    end_period = models.IntegerField()
+    start_clock = models.CharField(max_length=20)
+    end_clock = models.CharField(max_length=20)
+
+    # Score context
+    home_score_start = models.IntegerField()
+    away_score_start = models.IntegerField()
+    home_score_end = models.IntegerField()
+    away_score_end = models.IntegerField()
+
+    # Derived metrics
+    differential_start = models.IntegerField()   # home - away at segment start
+    differential_end = models.IntegerField()     # home - away at segment end
+    differential_max = models.IntegerField()     # largest abs differential within segment
+    lead_change_count = models.IntegerField(default=0)
+    run_ratio = models.FloatField(null=True, blank=True)  # null for non-RUN segments
+
+    class Meta:
+        ordering = ['game', 'sequence']
+        unique_together = ['game', 'sequence']
+        indexes = [
+            models.Index(fields=['game', 'sequence']),
+            models.Index(fields=['game', 'segment_type']),
+        ]
+
+    def __str__(self):
+        return f"{self.game} — segment {self.sequence} ({self.segment_type})"
+
+
+class GameKeyEvent(models.Model):
+    EVENT_TYPES = [
+        ('TIE', 'Tie'),
+        ('LEAD_CHANGE', 'Lead Change'),
+        ('BLOWOUT_START', 'Blowout Start'),
+    ]
+
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='key_events')
+    segment = models.ForeignKey(
+        GameSegment, on_delete=models.CASCADE, related_name='key_events', null=True, blank=True
+    )
+    benefiting_team = models.ForeignKey(
+        Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='key_events'
+    )
+
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPES)
+
+    # Reference back to the specific play
+    play_order = models.IntegerField()
+    period = models.IntegerField()
+    clock = models.CharField(max_length=20)
+
+    # Score at moment of event
+    home_score = models.IntegerField()
+    away_score = models.IntegerField()
+    differential = models.IntegerField()  # home - away
+
+    class Meta:
+        ordering = ['game', 'play_order']
+        indexes = [
+            models.Index(fields=['game', 'event_type']),
+            models.Index(fields=['game', 'play_order']),
+        ]
+
+    def __str__(self):
+        return f"{self.game} — {self.event_type} at Q{self.period} {self.clock}"
 
 
 class PlayerStat(models.Model):

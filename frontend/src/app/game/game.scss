@@ -242,8 +242,80 @@
   canvas {
     width: 100% !important;
     height: 100% !important;
+    cursor: pointer;
   }
 }
+
+// ── Scorer lines ─────────────────────────────────────────────────────────────
+
+.scorer-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0.75rem 0 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  background: var(--surface, rgba(0,0,0,0.02));
+  border: 1px solid var(--border);
+}
+
+.scorer-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.scorer-line-abbr {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-width: 2.2rem;
+  flex-shrink: 0;
+}
+
+.scorer-line-names {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+// ── Segment legend ────────────────────────────────────────────────────────────
+
+.segment-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.segment-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--seg-color, rgba(150,150,150,0.4));
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--seg-color, rgba(150,150,150,0.15));
+    color: var(--text);
+  }
+
+  &.active {
+    background: var(--seg-color, rgba(150,150,150,0.2));
+    color: var(--text);
+    border-color: var(--seg-color);
+  }
+}
+
+// ── Stat comparison ───────────────────────────────────────────────────────────
 
 .stat-comparison {
   display: flex;
@@ -270,7 +342,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  // color driven by inline [style.color] in template
   &.away { text-align: right; }
   &.home { text-align: left; grid-column: 3; }
 }
@@ -344,7 +415,6 @@
   border-radius: 4px;
   transition: width 0.4s ease;
 
-  // background color driven by inline [style.background] in template
   &.away { right: 50%; }
   &.home { left: 50%; }
 }
@@ -362,6 +432,8 @@
   white-space: nowrap;
   z-index: 2;
 }
+
+// ── Box scores ────────────────────────────────────────────────────────────────
 
 .box-scores {
   display: grid;

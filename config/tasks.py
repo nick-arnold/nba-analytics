@@ -22,6 +22,9 @@ def nightly_ingest():
     call_command('seed_bdl_stats', seasons=[season], postseason=True)
     call_command('seed_bdl_plays', season=season)
     call_command('seed_bdl_plays', season=season, postseason=True)
+    # Only segment games that don't have segments yet
+    call_command('segment_games', season=season)
+    call_command('segment_games', season=season, postseason=True)
     call_command('create_materialized_views', refresh_only=True)
 
 
@@ -47,7 +50,7 @@ def live_score_poll():
     call_command('seed_bdl_games', seasons=[season])
     call_command('seed_bdl_games', seasons=[season], postseason=True)
 
-    # Update live box scores for in-progress games only
+    # Update live box scores and plays for in-progress games
     live_game_ids = list(
         live_or_pending.exclude(home_score=None).values_list('nba_game_id', flat=True)
     )
@@ -55,5 +58,15 @@ def live_score_poll():
         call_command('seed_bdl_stats', game_ids=live_game_ids)
         for game_id in live_game_ids:
             call_command('seed_bdl_plays', game_id=game_id)
+
+    # Segment newly finished games — skip-if-exists by default so only
+    # games that just finished (no segments yet) get processed
+    newly_final = Game.objects.filter(
+        game_date__in=[today, yesterday],
+        status='Final',
+        home_score__isnull=False,
+    )
+    for game in newly_final:
+        call_command('segment_games', game_id=game.nba_game_id)
 
     return f'Polled {live_or_pending.count()} live/pending games'

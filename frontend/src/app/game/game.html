@@ -117,16 +117,50 @@
 
     </div>
 
-    <!-- Score progression + stat comparison side by side -->
+    <!-- Row 1: Score progression + Team Stats -->
     <div class="row g-3 mb-3">
 
       @if (scoringPlays.length > 0) {
         <div class="col-12 col-md-6">
           <div class="score-chart-section h-100">
             <h2 class="section-label">Score Progression</h2>
+
             <div class="chart-wrap">
               <canvas #scoreChart></canvas>
             </div>
+
+            <!-- Scorer lines — only shown when a segment is selected -->
+            @if (showScorerLines) {
+              <div class="scorer-lines">
+                <div class="scorer-line">
+                  <span class="scorer-line-abbr" [style.color]="teamColor(game.away_team.abbreviation)">
+                    {{ game.away_team.abbreviation }}
+                  </span>
+                  <span class="scorer-line-names">{{ scorerLine(game.away_team.abbreviation) }}</span>
+                </div>
+                <div class="scorer-line">
+                  <span class="scorer-line-abbr" [style.color]="teamColor(game.home_team.abbreviation)">
+                    {{ game.home_team.abbreviation }}
+                  </span>
+                  <span class="scorer-line-names">{{ scorerLine(game.home_team.abbreviation) }}</span>
+                </div>
+              </div>
+            }
+
+            <!-- Segment pills -->
+            @if (segments.length > 0) {
+              <div class="segment-legend">
+                @for (seg of segments; track seg.id) {
+                  <button
+                    class="segment-pill"
+                    [class.active]="selectedSegment?.id === seg.id"
+                    [style.--seg-color]="segmentPillColor(seg)"
+                    (click)="selectSegment(seg)">
+                    {{ segmentLabel(seg) }}
+                  </button>
+                }
+              </div>
+            }
           </div>
         </div>
       }
@@ -137,7 +171,6 @@
 
             <h2 class="section-label">Team Stats</h2>
 
-            <!-- Team names aligned to stat columns -->
             <div class="stat-team-header">
               <span class="stat-team-label away" [style.color]="teamColor(game.away_team.abbreviation)">
                 {{ game.away_team.name }}
@@ -195,6 +228,7 @@
       </app-shot-chart>
     </div>
 
+    <!-- Box scores -->
     <div class="box-scores">
       @for (side of [
         { team: game.away_team, box: game.away_box_score, totals: awayTeamTotals },

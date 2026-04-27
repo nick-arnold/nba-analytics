@@ -11,7 +11,7 @@ COORD_SENTINEL_Y = -214748365
 
 
 class Command(BaseCommand):
-    help = 'Seed all play-by-play data from BallDontLie API (makes, misses, and all events)'
+    help = 'Bulk seed play-by-play data from BallDontLie API using bulk_create for speed'
 
     def add_arguments(self, parser):
         parser.add_argument('--game-id', type=str, help='Specific nba_game_id to seed')
@@ -36,17 +36,19 @@ class Command(BaseCommand):
             self.stdout.write('Provide --game-id or --season')
             return
 
-        self.stdout.write(f'Seeding plays for {games.count()} games...')
+        total = games.count()
+        self.stdout.write(f'Bulk seeding plays for {total} games...')
 
-        for game in games:
+        for i, game in enumerate(games, 1):
             self.seed_game(game, headers)
-            time.sleep(0.15)
+            if i % 50 == 0:
+                self.stdout.write(f'  Progress: {i}/{total}')
 
         self.stdout.write('Done.')
 
     def seed_game(self, game, headers):
         url = 'https://api.balldontlie.io/v1/plays'
-        r = requests.get(url, headers=headers, params={'game_id': game.nba_game_id})
+        r = requests.get(url, headers=headers, params={'game_id': game.nba_game_id}, timeout=30)
 
         if r.status_code != 200:
             self.stdout.write(f'  Error {r.status_code} for game {game.nba_game_id}')
@@ -59,9 +61,10 @@ class Command(BaseCommand):
             self.stdout.write(f'  No plays for {game.nba_game_id}')
             return
 
-        team_cache = {t.abbreviation: t for t in game.home_team.__class__.objects.all()}
+        team_cache = {t.abbreviation: t for t in Team.objects.all()}
 
-        created = 0
+        # Build PlayByPlay objects
+        objs = []
         for p in plays:
             team_abbr = p.get('team', {}).get('abbreviation') if p.get('team') else None
             team = team_cache.get(team_abbr) if team_abbr else None
@@ -77,26 +80,34 @@ class Command(BaseCommand):
             if coord_y == COORD_SENTINEL_Y:
                 coord_y = None
 
-            _, was_created = PlayByPlay.objects.update_or_create(
+            objs.append(PlayByPlay(
                 game=game,
                 order=p['order'],
-                defaults={
-                    'period': p['period'],
-                    'clock': p.get('clock', ''),
-                    'event_type': p.get('type', '')[:100],
-                    'description': p.get('text', ''),
-                    'team': team,
-                    'home_score': p.get('home_score'),
-                    'away_score': p.get('away_score'),
-                    'scoring_play': p.get('scoring_play', False),
-                    'score_value': p.get('score_value'),
-                    'wallclock': wallclock,
-                    'coordinate_x': coord_x,
-                    'coordinate_y': coord_y,
-                    'participants': p.get('participants', []),
-                }
-            )
-            if was_created:
-                created += 1
+                period=p['period'],
+                clock=p.get('clock', ''),
+                event_type=p.get('type', '')[:100],
+                description=p.get('text', ''),
+                team=team,
+                home_score=p.get('home_score'),
+                away_score=p.get('away_score'),
+                scoring_play=p.get('scoring_play', False),
+                score_value=p.get('score_value'),
+                wallclock=wallclock,
+                coordinate_x=coord_x,
+                coordinate_y=coord_y,
+                participants=p.get('participants', []),
+            ))
 
-        self.stdout.write(f'  {game.nba_game_id} — {created} new plays ingested ({len(plays)} total plays in response)')
+        # Upsert — insert new rows, update existing on (game, order) conflict
+        PlayByPlay.objects.bulk_create(
+            objs,
+            update_conflicts=True,
+            unique_fields=['game', 'order'],
+            update_fields=[
+                'period', 'clock', 'event_type', 'description', 'team',
+                'home_score', 'away_score', 'scoring_play', 'score_value',
+                'wallclock', 'coordinate_x', 'coordinate_y', 'participants',
+            ],
+        )
+
+        self.stdout.write(f'  {game.nba_game_id} — {len(plays)} plays upserted')
