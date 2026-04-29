@@ -522,9 +522,10 @@ export class LotteryReformComponent {
       }
 
       const eligible = lotteryTeams.filter(lt => !lt.blocked);
+      const isBaseYear = year === years[0];
 
-      // First lottery — shuffle eligible pool, take top 4
-      const shuffledEligible = seededShuffle(eligible, this.rollSeed + year);
+      // First lottery — use actual order in base year, shuffle in all subsequent years
+      const shuffledEligible = isBaseYear ? eligible : seededShuffle(eligible, this.rollSeed + year);
       const top4 = shuffledEligible.slice(0, 4);
       const remainingEligible = shuffledEligible.slice(4);
 
@@ -541,8 +542,8 @@ export class LotteryReformComponent {
       ];
 
       let secondOrdered: typeof secondPool;
-      if (blocked.length === 0) {
-        secondOrdered = seededShuffle(secondPool, this.rollSeed + year + 1);
+      if (isBaseYear || blocked.length === 0) {
+        secondOrdered = isBaseYear ? secondPool : seededShuffle(secondPool, this.rollSeed + year + 1);
       } else if (this.second === 'weighted') {
         secondOrdered = [
           ...seededShuffle(secondPool.filter(e => !e.blocked), this.rollSeed + year * 7),
