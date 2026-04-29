@@ -147,6 +147,9 @@
                     <div class="blocked-outcome">
                       was #{{ card.actualPick }} → 2nd lottery{{ card.simPick !== null ? ' (#' + card.simPick + ')' : '' }}
                     </div>
+                    @if (card.liftsAfter) {
+                      <div class="blocked-lifts">block lifts after {{ card.liftsAfter }}</div>
+                    }
                   </div>
                 </div>
               }

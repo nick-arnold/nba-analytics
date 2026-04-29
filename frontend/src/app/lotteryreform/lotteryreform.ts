@@ -297,6 +297,7 @@ interface BlockedCard {
   simPick: number | null;
   reason: string;
   historyStr: string;
+  liftsAfter: number | null;
 }
 
 // Merged row for unified comparison table
@@ -409,11 +410,31 @@ export class LotteryReformComponent {
       const bt = r.lotteryTeams.find(lt => lt.team === team)!;
       const simEntry = r.simulated.find(s => s.team === team);
       const reason = bt.blockReason === 'consec' ? 'Consecutive top-2' : `Top-${this.capThreshold} cap (4yr)`;
+      const threshold = bt.blockReason === 'consec' ? 2 : this.capThreshold;
       const recentYears = this.years.filter(y => y < this.selectedYear! && y >= this.selectedYear! - 4);
+
+      // Only show picks that actually count toward the cap/consec rule
       const historyStr = recentYears.map(y => {
         const entry = this.simResults!.results[y]?.simulated.find(s => s.team === team);
-        return entry ? `'${String(y).slice(2)}:#${entry.pick}` : null;
+        if (!entry || entry.pick > threshold) return null;
+        return `'${String(y).slice(2)}:#${entry.pick}`;
       }).filter(Boolean).join('  ');
+
+      // Calculate when block lifts
+      let liftsAfter: number | null = null;
+      if (bt.blockReason === 'consec') {
+        liftsAfter = this.selectedYear! + 1;
+      } else {
+        // Cap lifts when the oldest qualifying pick falls outside the 4-year window
+        const qualifyingYears = recentYears.filter(y => {
+          const entry = this.simResults!.results[y]?.simulated.find(s => s.team === team);
+          return entry && entry.pick <= this.capThreshold;
+        }).sort((a, b) => a - b);
+        if (qualifyingYears.length >= 2) {
+          liftsAfter = qualifyingYears[0] + 4;
+        }
+      }
+
       return {
         team,
         blockReason: bt.blockReason!,
@@ -421,6 +442,7 @@ export class LotteryReformComponent {
         simPick: simEntry?.pick ?? null,
         reason,
         historyStr,
+        liftsAfter,
       };
     });
   }
