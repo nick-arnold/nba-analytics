@@ -28,7 +28,9 @@
         </div>
       }
     </div>
-    <a style="color: #fff; font-weight: 600; font-size: 0.95rem; text-decoration: none;" [routerLink]="['/compare']">Compare Players</a>    @if (auth.isLoggedIn()) {
+    <a style="color: #fff; font-weight: 600; font-size: 0.95rem; text-decoration: none;" [routerLink]="['/compare']">Compare Players</a>   
+    <a style="color: #fff; font-weight: 600; font-size: 0.95rem; text-decoration: none;" [routerLink]="['/lottery-reform']">Lottery Reform</a>
+    @if (auth.isLoggedIn()) {
       <button class="btn btn-sm" style="color: #fff; border: 1px solid rgba(255,255,255,0.4);" (click)="goToAccount()">Account</button>
     } @else {
       <a class="btn btn-sm" style="color: #fff; border: 1px solid rgba(255,255,255,0.4);" [routerLink]="['/login']">Sign in</a>

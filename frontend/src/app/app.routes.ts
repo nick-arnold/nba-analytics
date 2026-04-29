@@ -9,6 +9,7 @@ import { CvComponent } from './cv/cv';
 import { ThesisComponent } from './cv/thesis/thesis';
 import { CompareComponent } from './compare/compare';
 import { authGuard } from './auth.guard';
+import { LotteryReformComponent } from './lotteryreform/lotteryreform';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -22,5 +23,6 @@ export const routes: Routes = [
   { path: 'account', component: AccountComponent, canActivate: [authGuard] },
   { path: 'cv', component: CvComponent },
   { path: 'cv/thesis', component: ThesisComponent },
+  { path: 'lottery-reform', component: LotteryReformComponent },
   { path: '**', redirectTo: '' },
 ];

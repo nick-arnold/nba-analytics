@@ -1,0 +1,264 @@
+<div class="container-lg py-4 lr-container">
+
+  <!-- ── PAGE HEADER ───────────────────────────────────────────────────── -->
+  <div class="lr-header mb-4">
+    <div class="lr-header-top">
+      <div>
+        <h1 class="lr-title">Lottery Reform Simulator</h1>
+        <p class="lr-subtitle">What would NBA draft history look like under a fairer lottery?</p>
+      </div>
+      <div class="lr-meta">
+        <span class="lr-badge">2004–2025</span>
+        <span class="lr-badge">22 Draft Classes</span>
+      </div>
+    </div>
+    <div class="lr-explainer">
+      This simulator re-runs the NBA draft lottery from any starting year using three proposed reforms:
+      <strong>flat odds</strong> (every non-playoff team has an equal shot at any pick),
+      a <strong>consecutive block</strong> (teams can't land top-2 in back-to-back years), and a
+      <strong>frequency cap</strong> (no team can land a top pick more than twice in a four-year window).
+      Teams blocked by these rules enter a <strong>second lottery</strong> competing for picks 5–14.
+      Configure the rules, pick a start year, and run the simulation.
+    </div>
+  </div>
+
+  <div class="row g-3 align-items-start">
+
+    <!-- ── SIDEBAR ───────────────────────────────────────────────────────── -->
+    <div class="col-12 col-lg-3">
+      <div class="lr-controls">
+
+        <div class="control-group">
+          <label>Lottery Structure</label>
+          <div class="rule-toggle">
+            <button class="toggle-btn" [class.active]="lottery === 'flat'" (click)="lottery = 'flat'">Flat</button>
+            <button class="toggle-btn" [class.active]="lottery === 'weighted'" (click)="lottery = 'weighted'">Weighted</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Consecutive #1 or #2 Block</label>
+          <div class="rule-toggle">
+            <button class="toggle-btn" [class.active]="consecutive" (click)="consecutive = true">On</button>
+            <button class="toggle-btn" [class.active]="!consecutive" (click)="consecutive = false">Off</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Frequency Cap (4-year window)</label>
+          <div class="rule-toggle">
+            <button class="toggle-btn" [class.active]="capThreshold === 3" (click)="capThreshold = 3">Top-3</button>
+            <button class="toggle-btn" [class.active]="capThreshold === 4" (click)="capThreshold = 4">Top-4</button>
+            <button class="toggle-btn" [class.active]="capThreshold === 5" (click)="capThreshold = 5">Top-5</button>
+            <button class="toggle-btn" [class.active]="capThreshold === 0" (click)="capThreshold = 0">Off</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Second Lottery (Blocked Teams)</label>
+          <div class="rule-toggle">
+            <button class="toggle-btn" [class.active]="second === 'flat'" (click)="second = 'flat'">Flat</button>
+            <button class="toggle-btn" [class.active]="second === 'weighted'" (click)="second = 'weighted'">Weighted</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Start Year</label>
+          <select class="form-select form-select-sm" [(ngModel)]="startYear">
+            <option *ngFor="let y of startYearOptions" [value]="y">From {{ y }}</option>
+          </select>
+        </div>
+
+        <button class="run-btn w-100" (click)="runSim()">Run Simulation</button>
+
+        @if (simResults) {
+          <div class="stats-box">
+            <div class="stat-row">
+              <span class="stat-label">Blocked Events</span>
+              <span class="stat-val">{{ statBlocked }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Second Lottery Fires</span>
+              <span class="stat-val">{{ statSecond }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Picks Redistributed</span>
+              <span class="stat-val">{{ statRedist }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Years Simulated</span>
+              <span class="stat-val">{{ statYears }}</span>
+            </div>
+          </div>
+        }
+
+        <div class="legend">
+          <div class="legend-title">Legend</div>
+          <div class="legend-item"><div class="legend-dot dot-lottery"></div>Top 4 (first lottery)</div>
+          <div class="legend-item"><div class="legend-dot dot-blocked"></div>Blocked — rule triggered</div>
+          <div class="legend-item"><div class="legend-dot dot-second"></div>Second lottery pick</div>
+          <div class="legend-item"><div class="legend-dot dot-muted"></div>Picks 5–14</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── MAIN ──────────────────────────────────────────────────────────── -->
+    <div class="col-12 col-lg-9">
+
+      @if (!simResults) {
+        <div class="intro-msg">
+          <div class="intro-big">Configure &amp; Run</div>
+          <div>Set your rules and click Run Simulation to see<br>how draft history would have played out</div>
+        </div>
+      } @else {
+
+        <!-- Year nav -->
+        <div class="year-nav mb-4">
+          @for (y of years; track y) {
+            <button
+              class="year-btn"
+              [class.active]="y === selectedYear"
+              [class.has-blocked]="yearsWithBlocked.has(y)"
+              (click)="selectYear(y)">
+              {{ y }}
+            </button>
+          }
+        </div>
+
+        <!-- Draft comparison -->
+        @if (selectedYear && selectedResult) {
+          <div class="section-divider">Draft Comparison — {{ selectedYear }}</div>
+
+          <!-- Blocked cards -->
+          @if (blockedCards.length > 0) {
+            <div class="row g-2 mb-3">
+              @for (card of blockedCards; track card.team) {
+                <div class="col-12 col-sm-6 col-xl-4">
+                  <div class="blocked-card h-100">
+                    <div class="blocked-card-header">
+                      <span class="blocked-team">{{ card.team }}</span>
+                      <span class="pick-tag tag-blocked">{{ card.blockReason === 'consec' ? 'CONSEC' : 'CAP' }}</span>
+                    </div>
+                    <div class="blocked-reason">{{ card.reason }}</div>
+                    @if (card.historyStr) {
+                      <div class="blocked-history">{{ card.historyStr }}</div>
+                    }
+                    <div class="blocked-outcome">
+                      was #{{ card.actualPick }} → 2nd lottery{{ card.simPick !== null ? ' (#' + card.simPick + ')' : '' }}
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="no-triggers mb-3">No rules triggered in {{ selectedYear }}</div>
+          }
+
+          <!-- Unified comparison table -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div></div>
+            <button class="reroll-btn" (click)="reroll()">↺ Re-roll Lottery</button>
+          </div>
+          <div class="draft-panel mb-4">
+            <div class="table-responsive">
+              <table class="table table-sm lr-table mb-0">
+              <thead>
+                <tr>
+                  <th class="col-pick">#</th>
+                  <th>Player</th>
+                  <th class="col-team text-center">Actual</th>
+                  <th class="col-team text-center">Simulated</th>
+                  <th class="col-delta text-end">{{ selectedYear }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of mergedRows; track row.pick) {
+                  <tr [class]="mergedRowClass(row)">
+                    <td class="col-pick">
+                      <span class="pick-num" [class.top4-num]="row.isTop4" [class.blocked-num]="row.simBlocked">
+                        {{ row.pick }}
+                      </span>
+                    </td>
+                    <td class="player-name">{{ row.player }}</td>
+                    <td class="text-center">
+                      <span class="team-chip-color"
+                            [style.background]="teamColor(row.actualTeam)"
+                            [style.color]="teamTextColor(row.actualTeam)">
+                        {{ row.actualTeam }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span class="team-chip-color"
+                            [style.background]="teamColor(row.simTeam)"
+                            [style.color]="teamTextColor(row.simTeam)"
+                            [class.chip-dimmed]="row.teamsMatch">
+                        {{ row.simTeam }}
+                      </span>
+                    </td>
+                    <td class="col-delta text-end">
+                      @if (!row.teamsMatch && row.delta !== 0) {
+                        <span [class]="row.delta > 0 ? 'arrow-up' : 'arrow-down'">
+                          {{ row.delta > 0 ? '▲' : '▼' }}{{ row.delta > 0 ? row.delta : -row.delta }}
+                        </span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            </div>
+          </div>
+
+          <!-- Team history timeline -->
+          <div class="section-divider">Team History Timeline</div>
+          <div class="team-history">
+            <div class="th-header mb-2">Track a team's simulated draft position across all years</div>
+            <div class="team-selector mb-3">
+              @for (t of displayTeams; track t) {
+                <button
+                  class="team-chip"
+                  [class.active]="t === selectedTeam"
+                  [class.has-blocked]="teamHasBlocked(t)"
+                  (click)="selectTeam(t)">
+                  {{ t }}
+                </button>
+              }
+            </div>
+
+            @if (selectedTeam) {
+              <div class="timeline">
+                @for (ty of timelineYears; track ty.year) {
+                  <div class="timeline-year">
+                    <div class="tl-yr">{{ shortYear(ty.year) }}</div>
+                    <div [class]="tlPickClass(ty)"
+                         [title]="'Sim: #' + (ty.simPick?.pick ?? 'PO') + ' | Actual: #' + (ty.actualPick ?? 'PO')">
+                      {{ ty.simPick ? ty.simPick.pick : 'PO' }}
+                    </div>
+                    <div class="tl-delta">
+                      @if (ty.delta !== null && ty.delta !== 0) {
+                        <span [class]="ty.delta < 0 ? 'arrow-up' : 'arrow-down'">
+                          {{ ty.delta < 0 ? '▲' : '▼' }}{{ ty.delta < 0 ? -ty.delta : ty.delta }}
+                        </span>
+                      } @else {
+                        &nbsp;
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+              <div class="timeline-note mt-2">
+                Pick number shown is simulated result. ▲ = moved up, ▼ = moved down vs. actual.
+              </div>
+            } @else {
+              <div class="no-data">← Select a team to see their draft timeline</div>
+            }
+          </div>
+
+        }
+
+      }
+    </div>
+
+  </div>
+</div>
